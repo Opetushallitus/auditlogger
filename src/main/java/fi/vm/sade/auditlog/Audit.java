@@ -4,7 +4,9 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,18 +41,36 @@ public class Audit {
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
 
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setContext(loggerContext);
-        fileAppender.setAppend(true);
-        fileAppender.setName("file");
-        fileAppender.setFile(file);
-        fileAppender.setEncoder(patternLayoutEncoder);
-        fileAppender.start();
+        RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+        rollingFileAppender.setContext(loggerContext);
+        rollingFileAppender.setAppend(true);
+        rollingFileAppender.setName("file");
+        rollingFileAppender.setFile(file);
+        rollingFileAppender.setEncoder(patternLayoutEncoder);
+
+        FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+        rollingPolicy.setContext(loggerContext);
+        rollingPolicy.setParent(rollingFileAppender);
+        rollingPolicy.setFileNamePattern("auditlog.%i.txt.zip");
+        rollingPolicy.start();
+
+        SizeBasedTriggeringPolicy triggeringPolicy = new ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy();
+        triggeringPolicy.setMaxFileSize("5MB");
+        triggeringPolicy.start();
+
+        rollingFileAppender.setRollingPolicy(rollingPolicy);
+        rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
+
+        rollingFileAppender.start();
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-        logger.addAppender(fileAppender);
+        logger.addAppender(rollingFileAppender);
         logger.setLevel(Level.ALL);
         logger.setAdditive(true);
+    }
+
+    public static void main(String... args) {
+        new Audit("AUDIT", "logs/audit.log").log("foo");
     }
 
 }
