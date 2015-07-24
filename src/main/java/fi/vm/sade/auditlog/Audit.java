@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 public class Audit {
     private Logger log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
     private final String serviceName;
+    private final FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
 
     public Audit() {
         this.serviceName = "";
@@ -28,7 +29,7 @@ public class Audit {
     }
 
     public void log(String msg) {
-        log.info("["+serviceName+"]: " + msg);
+        log.info("[" + serviceName + "]: " + msg);
     }
 
     private void configureFileLogger(String file) {
@@ -39,7 +40,6 @@ public class Audit {
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
 
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
         fileAppender.setContext(loggerContext);
         fileAppender.setAppend(true);
         fileAppender.setName("file");
@@ -47,10 +47,10 @@ public class Audit {
         fileAppender.setEncoder(patternLayoutEncoder);
         fileAppender.start();
 
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger)log;
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
         logger.addAppender(fileAppender);
         logger.setLevel(Level.ALL);
         logger.setAdditive(true);
     }
-    
+
 }
