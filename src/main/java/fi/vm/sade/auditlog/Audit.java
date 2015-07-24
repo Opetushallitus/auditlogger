@@ -19,7 +19,7 @@ public class Audit {
 
     public Audit(String serviceName, String file) {
         this.serviceName = serviceName.toUpperCase();
-        configureLogger(file);
+        configureFileLogger(file);
     }
 
     Audit(String serviceName, Logger log) {
@@ -31,11 +31,11 @@ public class Audit {
         log.info("["+serviceName+"]: " + msg);
     }
 
-    private void configureLogger(String file) {
+    private void configureFileLogger(String file) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
-        patternLayoutEncoder.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        patternLayoutEncoder.setPattern("%date %level %logger{10} [%file:%line] %msg%n");
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
 
@@ -52,4 +52,5 @@ public class Audit {
         logger.setLevel(Level.ALL);
         logger.setAdditive(true);
     }
+    
 }
