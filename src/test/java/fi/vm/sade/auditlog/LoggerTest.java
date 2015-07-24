@@ -13,13 +13,13 @@ public class LoggerTest {
     @Before
     public void initMock() {
         loggerMock = mock(Logger.class);
-        audit = new Audit(loggerMock);
+        audit = new Audit("test", loggerMock);
     }
 
     @Test
     public void smokeTest() {
-        audit.log("auditlogger", "test message");
-        verify(loggerMock).info(anyString(), anyString());
+        audit.log("test message");
+        verify(loggerMock).info(anyString());
     }
 
 }
