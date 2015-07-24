@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 public class Audit {
     private Logger log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
     private final String serviceName;
-    private final FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
 
     public Audit() {
         this.serviceName = "";
@@ -40,6 +39,7 @@ public class Audit {
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
 
+        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
         fileAppender.setContext(loggerContext);
         fileAppender.setAppend(true);
         fileAppender.setName("file");
