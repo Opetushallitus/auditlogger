@@ -73,9 +73,4 @@ public class Audit {
         rollingFileAppender.start();
         return rollingFileAppender;
     }
-
-    public static void main(String... args) {
-        new Audit("AUDIT", "logs/audit.log").log("foo");
-    }
-
 }
