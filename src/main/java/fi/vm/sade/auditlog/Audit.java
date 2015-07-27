@@ -33,8 +33,8 @@ public class Audit {
         log.info("[" + serviceName + "]: " + msg);
     }
 
-     void log(String id, String palveluTunniste, String tunniste, String lokiviesti) {
-         log.info(new LogMessage(id, palveluTunniste, tunniste, lokiviesti).toString());
+     void log(LogMessage logMessage) {
+         log.info(logMessage.toString());
      }
 
     private void configureFileLogger(String file) {

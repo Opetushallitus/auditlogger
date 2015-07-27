@@ -35,7 +35,13 @@ public class LoggerTest {
 
         Audit audit = new Audit("TEST", filename);
         audit.log("Testi viesti");
-        audit.log("ID", "omatsivut", "opiskelija", "Opiskelija kirjautui sisään");
+        LogMessage logMessage = new LogMessageBuilder()
+                .setId("ID")
+                .setPalveluTunniste("omatsivut")
+                .setTunniste("opiskelija")
+                .setLokiviesti("Opiskelija kirjautui sisään")
+                .build();
+        audit.log(logMessage);
 
         assertTrue(file.exists());
         assertEquals(243, file.length());
