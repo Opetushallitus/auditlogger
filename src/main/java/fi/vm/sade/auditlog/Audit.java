@@ -41,6 +41,15 @@ public class Audit {
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
 
+        RollingFileAppender<ILoggingEvent> rollingFileAppender = setupFileAppender(file, loggerContext, patternLayoutEncoder);
+
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
+        logger.addAppender(rollingFileAppender);
+        logger.setLevel(Level.ALL);
+        logger.setAdditive(true);
+    }
+
+    private RollingFileAppender<ILoggingEvent> setupFileAppender(String file, LoggerContext loggerContext, PatternLayoutEncoder patternLayoutEncoder) {
         RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
         rollingFileAppender.setContext(loggerContext);
         rollingFileAppender.setAppend(true);
@@ -54,7 +63,7 @@ public class Audit {
         rollingPolicy.setFileNamePattern("auditlog.%i.txt.zip");
         rollingPolicy.start();
 
-        SizeBasedTriggeringPolicy triggeringPolicy = new ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy();
+        SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
         triggeringPolicy.setMaxFileSize("5MB");
         triggeringPolicy.start();
 
@@ -62,11 +71,7 @@ public class Audit {
         rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
 
         rollingFileAppender.start();
-
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-        logger.addAppender(rollingFileAppender);
-        logger.setLevel(Level.ALL);
-        logger.setAdditive(true);
+        return rollingFileAppender;
     }
 
     public static void main(String... args) {
