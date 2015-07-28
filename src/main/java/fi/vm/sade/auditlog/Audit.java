@@ -8,6 +8,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import org.productivity.java.syslog4j.Syslog;
+import org.productivity.java.syslog4j.SyslogIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import java.nio.charset.Charset;
 
 public class Audit {
     private Logger log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
+    private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");
     private final String serviceName;
 
     public Audit() {
@@ -35,12 +37,12 @@ public class Audit {
     public void log(String message) {
         final String msg = "[" + serviceName + "]: " + message;
         log.info(msg);
-        Syslog.getInstance("udp").notice(msg);
+        SYSLOG.notice(msg);
     }
 
     void log(LogMessage logMessage) {
         log.info(logMessage.toString());
-        Syslog.getInstance("udp").notice(logMessage.toString());
+        SYSLOG.notice(logMessage.toString());
     }
 
     private void configureFileLogger(String file) {
