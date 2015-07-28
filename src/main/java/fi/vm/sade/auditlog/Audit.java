@@ -40,6 +40,7 @@ public class Audit {
 
      void log(LogMessage logMessage) {
          log.info(logMessage.toString());
+         Syslog.getInstance("udp").notice(logMessage.toString());
      }
 
     private void configureFileLogger(String file) {
