@@ -38,10 +38,10 @@ public class Audit {
         Syslog.getInstance("udp").notice(msg);
     }
 
-     void log(LogMessage logMessage) {
-         log.info(logMessage.toString());
-         Syslog.getInstance("udp").notice(logMessage.toString());
-     }
+    void log(LogMessage logMessage) {
+        log.info(logMessage.toString());
+        Syslog.getInstance("udp").notice(logMessage.toString());
+    }
 
     private void configureFileLogger(String file) {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
