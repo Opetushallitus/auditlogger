@@ -27,6 +27,9 @@ SBT:
 
 Java: 
 ```
+String serviceName = "omatsivut";
+String logFile = "/logs/audit.log";
+Audit log = new Audit(serviceName, logFile);
 LogMessage logMessage = new LogMessageBuilder()
                          .setId("ID")
                          .setPalveluTunniste("omatsivut")
