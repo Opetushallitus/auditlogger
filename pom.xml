@@ -66,6 +66,36 @@
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>all</shadedClassifierName>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.com.google</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.sun</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.com.sun</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>ch.qos.logback</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.ch.qos.logback</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.graylog2</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.org.graylog2</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.org.apache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.joda</pattern>
+                                    <shadedPattern>fi.vm.sade.auditlog.org.joda</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
