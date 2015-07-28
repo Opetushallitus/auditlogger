@@ -7,8 +7,11 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import org.productivity.java.syslog4j.Syslog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.Charset;
 
 
 public class Audit {
@@ -29,8 +32,10 @@ public class Audit {
         this.log = log;
     }
 
-    public void log(String msg) {
-        log.info("[" + serviceName + "]: " + msg);
+    public void log(String message) {
+        final String msg = "[" + serviceName + "]: " + message;
+        log.info(msg);
+        Syslog.getInstance("udp").notice(msg);
     }
 
      void log(LogMessage logMessage) {
@@ -41,6 +46,7 @@ public class Audit {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
+        patternLayoutEncoder.setCharset(Charset.forName("UTF-8"));
         patternLayoutEncoder.setPattern("%date %level %logger{10} [%file:%line] %msg%n");
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
