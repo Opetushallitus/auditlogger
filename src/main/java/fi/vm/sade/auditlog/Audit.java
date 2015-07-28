@@ -67,7 +67,7 @@ public class Audit {
         rollingPolicy.setFileNamePattern("auditlog.%i.txt.zip");
         rollingPolicy.start();
 
-        SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
+        SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
         triggeringPolicy.setMaxFileSize("5MB");
         triggeringPolicy.start();
 
