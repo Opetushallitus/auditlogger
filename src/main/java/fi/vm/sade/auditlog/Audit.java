@@ -7,8 +7,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
-import org.productivity.java.syslog4j.Syslog;
-import org.productivity.java.syslog4j.SyslogIF;
+import org.graylog2.syslog4j.Syslog;
+import org.graylog2.syslog4j.SyslogIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
