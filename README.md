@@ -1,16 +1,21 @@
 ### Auditlogger
 
-Auditlogikomponentti logitukseen. Käyttää sysloggeria logitukseen.
+Auditlogikomponentti logitukseen. Logittaa tiedoston lisäksi syslogiin.
+
+Syslog4j-kirjastot:
+
+* https://github.com/Graylog2/syslog4j-graylog2
+* https://github.com/twall/jna
 
 ##Käyttöönotto
 
 Maven: 
 ``` 
     <dependency>
-            <groupId>fi.vm.sade</groupId>
-            <artifactId>auditlogger</artifactId>
-            <version>1.0-SNAPSHOT</version>
-       </dependency>
+        <groupId>fi.vm.sade</groupId>
+        <artifactId>auditlogger</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
 ```
        
 SBT: 
@@ -27,6 +32,6 @@ LogMessage logMessage = new LogMessageBuilder()
                          .setPalveluTunniste("omatsivut")
                          .setTunniste("opiskelija")
                          .setLokiviesti("Opiskelija kirjautui sisään")
-                         .build()
+                         .build();
 audit.log(logMessage);
 ```
