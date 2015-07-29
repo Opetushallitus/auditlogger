@@ -14,16 +14,16 @@ public class LogMessage {
      */
     public LogMessage(String id, String palveluTunniste, String tunniste, String lokiviesti) {
         this.oid = id;
-        this.palvelunTunniste = palveluTunniste.toUpperCase();
-        this.tunniste = tunniste.toUpperCase();
+        this.palvelunTunniste = palveluTunniste != null ? palveluTunniste.toUpperCase() : null;
+        this.tunniste = tunniste != null ? tunniste.toUpperCase() : null;
         this.lokiviesti = lokiviesti;
     }
 
     @Override
     public String toString() {
-        return "oid='" + oid + '\'' +
-                "palvelunTunniste='" + palvelunTunniste + '\'' +
-                ", tunniste='" + tunniste + '\'' +
-                ", lokiviesti='" + lokiviesti + '\'';
+        return "oid=\'" + oid + '\'' +
+                ", palvelunTunniste=\'" + palvelunTunniste + '\'' +
+                ", tunniste=\'" + tunniste + '\'' +
+                ", lokiviesti=\'" + lokiviesti + '\'';
     }
 }

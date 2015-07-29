@@ -44,7 +44,7 @@ public class LoggerTest {
         audit.log(logMessage);
 
         assertTrue(file.exists());
-        assertEquals(243, file.length());
+        assertEquals(253, file.length());
         file.delete();
         assertFalse(file.exists());
     }
