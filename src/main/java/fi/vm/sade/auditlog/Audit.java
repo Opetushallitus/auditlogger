@@ -9,6 +9,7 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import org.graylog2.syslog4j.Syslog;
 import org.graylog2.syslog4j.SyslogIF;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,20 +47,25 @@ public class Audit {
     }
 
     private void configureFileLogger(String file) {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ILoggerFactory ctx = LoggerFactory.getILoggerFactory();
+        if (ctx instanceof LoggerContext) {
+            LoggerContext loggerContext = (LoggerContext) ctx;
 
-        PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
-        patternLayoutEncoder.setCharset(Charset.forName("UTF-8"));
-        patternLayoutEncoder.setPattern("%date %level %logger{10} [%file:%line] %msg%n");
-        patternLayoutEncoder.setContext(loggerContext);
-        patternLayoutEncoder.start();
+            PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
+            patternLayoutEncoder.setCharset(Charset.forName("UTF-8"));
+            patternLayoutEncoder.setPattern("%date %level %logger{10} [%file:%line] %msg%n");
+            patternLayoutEncoder.setContext(loggerContext);
+            patternLayoutEncoder.start();
 
-        RollingFileAppender<ILoggingEvent> rollingFileAppender = setupFileAppender(file, loggerContext, patternLayoutEncoder);
+            RollingFileAppender<ILoggingEvent> rollingFileAppender = setupFileAppender(file, loggerContext, patternLayoutEncoder);
 
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-        logger.addAppender(rollingFileAppender);
-        logger.setLevel(Level.ALL);
-        logger.setAdditive(true);
+            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
+            logger.addAppender(rollingFileAppender);
+            logger.setLevel(Level.ALL);
+            logger.setAdditive(true);
+        } else {
+            SYSLOG.error("Audit logger file logger couldn't be initialized. Expected LOGBACK binding with SLF4J, but another log system has taken the place: " + ctx.getClass().getSimpleName());
+        }
     }
 
     private RollingFileAppender<ILoggingEvent> setupFileAppender(String file, LoggerContext loggerContext, PatternLayoutEncoder patternLayoutEncoder) {
