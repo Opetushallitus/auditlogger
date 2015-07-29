@@ -35,13 +35,13 @@ public class Audit {
         this.log = log;
     }
 
-    public void log(String message) {
+    void log(String message) {
         final String msg = "[" + serviceName + "]: " + message;
         log.info(msg);
         SYSLOG.notice(msg);
     }
 
-    void log(LogMessage logMessage) {
+    public void log(LogMessage logMessage) {
         log.info(logMessage.toString());
         SYSLOG.notice(logMessage.toString());
     }
@@ -64,7 +64,7 @@ public class Audit {
             logger.setLevel(Level.ALL);
             logger.setAdditive(true);
         } else {
-            SYSLOG.error("["+serviceName+"]: Audit logger file logger couldn't be initialized. Expected LOGBACK binding with SLF4J, but another log system has taken the place: " + ctx.getClass().getName());
+            SYSLOG.error("["+serviceName+"]: Audit logger file logger couldn't be initialized. Expected LoggerContext, but got: " + ctx.getClass().getName());
         }
     }
 
