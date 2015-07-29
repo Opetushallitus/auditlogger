@@ -17,36 +17,43 @@ import java.nio.charset.Charset;
 
 
 public class Audit {
-    private Logger log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
     private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");
-    private final String serviceName;
+    private final Logger log;
+    private String serviceName;
 
     public Audit() {
+        log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
         this.serviceName = "";
     }
 
     public Audit(String serviceName, String file) {
         this.serviceName = serviceName.toUpperCase();
-        configureFileLogger(file);
+        log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
+        RollingFileAppender<ILoggingEvent> rollingFileAppender = configureFileLogger(file);
+        if (rollingFileAppender != null) {
+            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
+            logger.addAppender(rollingFileAppender);
+            logger.setLevel(Level.ALL);
+            logger.setAdditive(true);
+        }
     }
 
     Audit(String serviceName, Logger log) {
-        this.serviceName = serviceName.toUpperCase();
         this.log = log;
+        this.serviceName = serviceName.toUpperCase();
     }
 
-    void log(String message) {
+    public void log(String message) {
         final String msg = "[" + serviceName + "]: " + message;
         log.info(msg);
         SYSLOG.notice(msg);
     }
 
     public void log(LogMessage logMessage) {
-        log.info(logMessage.toString());
-        SYSLOG.notice(logMessage.toString());
+        log(logMessage.toString());
     }
 
-    private void configureFileLogger(String file) {
+    private RollingFileAppender<ILoggingEvent> configureFileLogger(String file) {
         ILoggerFactory ctx = LoggerFactory.getILoggerFactory();
         if (ctx instanceof LoggerContext) {
             LoggerContext loggerContext = (LoggerContext) ctx;
@@ -57,39 +64,36 @@ public class Audit {
             patternLayoutEncoder.setContext(loggerContext);
             patternLayoutEncoder.start();
 
-            RollingFileAppender<ILoggingEvent> rollingFileAppender = setupFileAppender(file, loggerContext, patternLayoutEncoder);
+            RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
+            rollingFileAppender.setContext(loggerContext);
+            rollingFileAppender.setAppend(true);
+            rollingFileAppender.setName("file");
+            rollingFileAppender.setFile(file);
+            rollingFileAppender.setEncoder(patternLayoutEncoder);
 
-            ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-            logger.addAppender(rollingFileAppender);
-            logger.setLevel(Level.ALL);
-            logger.setAdditive(true);
+            FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
+            rollingPolicy.setContext(loggerContext);
+            rollingPolicy.setParent(rollingFileAppender);
+            rollingPolicy.setFileNamePattern("auditlog_" + serviceName + ".%i.txt.zip");
+            rollingPolicy.start();
+
+            SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
+            triggeringPolicy.setMaxFileSize("5MB");
+            triggeringPolicy.start();
+
+            rollingFileAppender.setRollingPolicy(rollingPolicy);
+            rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
+            rollingFileAppender.start();
+
+            return rollingFileAppender;
         } else {
-            SYSLOG.error("["+serviceName+"]: Audit logger file logger couldn't be initialized. Expected LoggerContext, but got: " + ctx.getClass().getName());
+            SYSLOG.error("["+serviceName+"]: Audit logger file appender couldn't be initialized. Expected LoggerContext, but got: " + ctx.getClass().getName());
+            return null;
         }
     }
 
-    private RollingFileAppender<ILoggingEvent> setupFileAppender(String file, LoggerContext loggerContext, PatternLayoutEncoder patternLayoutEncoder) {
-        RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
-        rollingFileAppender.setContext(loggerContext);
-        rollingFileAppender.setAppend(true);
-        rollingFileAppender.setName("file");
-        rollingFileAppender.setFile(file);
-        rollingFileAppender.setEncoder(patternLayoutEncoder);
-
-        FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
-        rollingPolicy.setContext(loggerContext);
-        rollingPolicy.setParent(rollingFileAppender);
-        rollingPolicy.setFileNamePattern("auditlog.%i.txt.zip");
-        rollingPolicy.start();
-
-        SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
-        triggeringPolicy.setMaxFileSize("5MB");
-        triggeringPolicy.start();
-
-        rollingFileAppender.setRollingPolicy(rollingPolicy);
-        rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
-
-        rollingFileAppender.start();
-        return rollingFileAppender;
+    public static void main(String[] args) {
+        new Audit("auditpoc", "./logs/audit.log").log("audit pocing");
     }
+
 }
