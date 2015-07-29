@@ -64,7 +64,7 @@ public class Audit {
             logger.setLevel(Level.ALL);
             logger.setAdditive(true);
         } else {
-            SYSLOG.error("Audit logger file logger couldn't be initialized. Expected LOGBACK binding with SLF4J, but another log system has taken the place: " + ctx.getClass().getSimpleName());
+            SYSLOG.error("["+serviceName+"]: Audit logger file logger couldn't be initialized. Expected LOGBACK binding with SLF4J, but another log system has taken the place: " + ctx.getClass().getSimpleName());
         }
     }
 
