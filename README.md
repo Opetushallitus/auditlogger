@@ -30,11 +30,11 @@ Java:
 String serviceName = "omatsivut";
 String logFile = "/logs/audit.log";
 Audit log = new Audit(serviceName, logFile);
-LogMessage logMessage = new LogMessageBuilder()
-                         .setId("ID")
-                         .setPalveluTunniste("omatsivut")
-                         .setTunniste("opiskelija")
-                         .setLokiviesti("Opiskelija kirjautui sisään")
-                         .build();
+LogMessage logMessage = LogMessage.builder()
+    .setId("ID")
+    .setPalveluTunniste("omatsivut")
+    .setTunniste("opiskelija")
+    .setLokiviesti("Opiskelija kirjautui sisään")
+    .build();
 audit.log(logMessage);
 ```

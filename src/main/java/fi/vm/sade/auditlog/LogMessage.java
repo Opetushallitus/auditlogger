@@ -26,4 +26,39 @@ public class LogMessage {
                 ", tunniste=\'" + tunniste + '\'' +
                 ", lokiviesti=\'" + lokiviesti + '\'';
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String id;
+        private String palveluTunniste;
+        private String tunniste;
+        private String lokiviesti;
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setPalveluTunniste(String palveluTunniste) {
+            this.palveluTunniste = palveluTunniste;
+            return this;
+        }
+
+        public Builder setTunniste(String tunniste) {
+            this.tunniste = tunniste;
+            return this;
+        }
+
+        public Builder setLokiviesti(String lokiviesti) {
+            this.lokiviesti = lokiviesti;
+            return this;
+        }
+
+        public LogMessage build() {
+            return new LogMessage(id, palveluTunniste, tunniste, lokiviesti);
+        }
+    }
 }

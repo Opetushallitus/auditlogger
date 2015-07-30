@@ -35,7 +35,7 @@ public class LoggerTest {
 
         Audit audit = new Audit("TEST", filename);
         audit.log("Testi viesti");
-        LogMessage logMessage = new LogMessageBuilder()
+        LogMessage logMessage = LogMessage.builder()
                 .setId("ID")
                 .setPalveluTunniste("omatsivut")
                 .setTunniste("opiskelija")
