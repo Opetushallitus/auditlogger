@@ -22,7 +22,7 @@ public class LoggerTest {
     @Test
     public void smokeTest() {
         audit.log("test message");
-        verify(loggerMock).info(anyString());
+        verify(loggerMock, times(2)).info(anyString());
     }
 
     @Test

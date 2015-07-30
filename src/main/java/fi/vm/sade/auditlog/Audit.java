@@ -23,16 +23,21 @@ public class Audit {
     public Audit() {
         log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
         this.serviceName = "";
+        logInitMessage();
     }
 
+
     public Audit(String serviceName, String logFileDir) {
+        log = LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
         this.serviceName = serviceName.toUpperCase();
-        log = configureLoggerWithFileLogger(logFileDir);
+        logInitMessage();
+        configureLoggerWithFileLogger(logFileDir);
     }
 
     Audit(String serviceName, Logger log) {
         this.log = log;
         this.serviceName = serviceName.toUpperCase();
+        logInitMessage();
     }
 
     public void log(String message) {
@@ -45,11 +50,16 @@ public class Audit {
         log(logMessage.toString());
     }
 
-    private Logger configureLoggerWithFileLogger(String logFileDir) {
+    private void logInitMessage() {
+        log("Initializing audit logging");
+    }
+
+    private void configureLoggerWithFileLogger(String logFileDir) {
         final String auditLogFileName = "auditlog" + (!serviceName.isEmpty() ? "_"+serviceName.toLowerCase() : "") + ".log";
         final String auditLogFileFullPath = (logFileDir.endsWith("/") ? logFileDir : logFileDir + "/") + auditLogFileName;
+        log("Configuring audit logging to: " + auditLogFileFullPath);
 
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
         LoggerContext loggerContext = logger.getLoggerContext();
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
         patternLayoutEncoder.setCharset(Charset.forName("UTF-8"));
@@ -81,7 +91,5 @@ public class Audit {
         logger.addAppender(rollingFileAppender);
         logger.setLevel(Level.ALL);
         logger.setAdditive(true);
-
-        return logger;
     }
 }
