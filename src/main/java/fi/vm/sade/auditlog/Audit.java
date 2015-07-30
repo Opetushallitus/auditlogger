@@ -25,9 +25,9 @@ public class Audit {
         this.serviceName = "";
     }
 
-    public Audit(String serviceName, String file) {
+    public Audit(String serviceName, String logFileDir) {
         this.serviceName = serviceName.toUpperCase();
-        log = configureLoggerWithFileLogger(file);
+        log = configureLoggerWithFileLogger(logFileDir);
     }
 
     Audit(String serviceName, Logger log) {
@@ -45,7 +45,10 @@ public class Audit {
         log(logMessage.toString());
     }
 
-    private Logger configureLoggerWithFileLogger(String file) {
+    private Logger configureLoggerWithFileLogger(String logFileDir) {
+        final String auditLogFileName = "auditlog" + (!serviceName.isEmpty() ? "_"+serviceName.toLowerCase() : "") + ".log";
+        final String auditLogFileFullPath = (logFileDir.endsWith("/") ? logFileDir : logFileDir + "/") + auditLogFileName;
+
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
         LoggerContext loggerContext = logger.getLoggerContext();
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
@@ -58,13 +61,13 @@ public class Audit {
         rollingFileAppender.setContext(loggerContext);
         rollingFileAppender.setAppend(true);
         rollingFileAppender.setName("file");
-        rollingFileAppender.setFile(file);
+        rollingFileAppender.setFile(auditLogFileFullPath);
         rollingFileAppender.setEncoder(patternLayoutEncoder);
 
         FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
         rollingPolicy.setContext(loggerContext);
         rollingPolicy.setParent(rollingFileAppender);
-        rollingPolicy.setFileNamePattern("auditlog_" + serviceName + ".%i.txt.zip");
+        rollingPolicy.setFileNamePattern(auditLogFileName + ".%i.log.zip");
         rollingPolicy.start();
 
         SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
