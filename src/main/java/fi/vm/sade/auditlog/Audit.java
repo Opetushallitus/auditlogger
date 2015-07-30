@@ -59,7 +59,7 @@ public class Audit {
         final String auditLogFileFullPath = (logFileDir.endsWith("/") ? logFileDir : logFileDir + "/") + auditLogFileName;
         log("Configuring audit logging to: " + auditLogFileFullPath);
 
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("ROOT");
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName());
         LoggerContext loggerContext = logger.getLoggerContext();
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
         patternLayoutEncoder.setCharset(Charset.forName("UTF-8"));
