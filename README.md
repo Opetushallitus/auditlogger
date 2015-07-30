@@ -28,8 +28,8 @@ SBT:
 Java: 
 ```
 String serviceName = "omatsivut";
-String logFile = "/logs/audit.log";
-Audit log = new Audit(serviceName, logFile);
+String logFileDir = "/logs";
+Audit log = new Audit(serviceName, logFileDir);
 LogMessage logMessage = LogMessage.builder()
     .setId("ID")
     .setPalveluTunniste("omatsivut")
@@ -37,4 +37,5 @@ LogMessage logMessage = LogMessage.builder()
     .setLokiviesti("Opiskelija kirjautui sisään")
     .build();
 audit.log(logMessage);
+// Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
