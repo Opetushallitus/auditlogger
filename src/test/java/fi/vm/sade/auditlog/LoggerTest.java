@@ -27,8 +27,7 @@ public class LoggerTest {
 
     @Test
     public void writeTest() {
-        String filename = "auditlog_test.log";
-        File file = new File(filename);
+        File file = new File("auditlog_test.log");
         if (file.exists()) {
             file.delete();
         }

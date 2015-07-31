@@ -1,6 +1,7 @@
 <configuration>
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>auditlog_test.log</file>
+        <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
             <fileNamePattern>auditlog_test.%i.log.zip</fileNamePattern>
             <minIndex>1</minIndex>
@@ -13,7 +14,8 @@
             <pattern>%date AUDIT %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="INFO">
+
+    <logger name="fi.vm.sade.auditlog.Audit" level="INFO">
         <appender-ref ref="ROLLING" />
-    </root>
+    </logger>
 </configuration>
