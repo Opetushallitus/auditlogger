@@ -29,7 +29,7 @@ public class Audit {
     Audit(Logger log, String serviceName, ApplicationType applicationType) {
         SyslogConfigIF syslogConf = SYSLOG.getConfig();
         syslogConf.setCharSet("UTF-8");
-        syslogConf.setIdent(applicationType.toString().toLowerCase());
+        syslogConf.setIdent(applicationType.toString().toLowerCase() + "-app");
         this.log = log;
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
