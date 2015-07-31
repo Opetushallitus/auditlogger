@@ -1,6 +1,6 @@
 ### Auditlogger
 
-Auditlogikomponentti logitukseen. Logittaa tiedoston lisäksi syslogiin.
+Auditlogikomponentti logitukseen. Logittaa syslogiin ja slf4j-apiin.
 
 Syslog4j-kirjastot:
 
@@ -20,22 +20,64 @@ Maven:
        
 SBT: 
 ```
-"fi.vm.sade" % "auditlogger" % "1.0-SNAPSHOT"
+    "fi.vm.sade" % "auditlogger" % "1.0-SNAPSHOT"
+```
+
+###slf4j
+
+Audit lokittaa myös käyttäen slf4j fasadia, johon voi konfiguroida toteutuksen sovellluksessa.
+Alla Logback-esimerkki.
+
+Maven: 
+``` 
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.1.3</version>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>1.1.3</version>
+    </dependency>
+```
+
+src/main/resources/logback.xml:
+```
+    <configuration>
+        <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>auditlog.log</file>
+            <append>true</append>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>auditlog.%i.log.zip</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>%date AUDIT %msg%n</pattern>
+            </encoder>
+        </appender>
+        <logger name="fi.vm.sade.auditlog.Audit" level="INFO">
+            <appender-ref ref="ROLLING" />
+        </logger>
+    </configuration>
 ```
 
 ###Käyttö
 
 Java: 
 ```
-String serviceName = "omatsivut";
-String logFileDir = "/logs";
-Audit log = new Audit(serviceName, logFileDir);
-LogMessage logMessage = LogMessage.builder()
-    .setId("ID")
-    .setPalveluTunniste("omatsivut")
-    .setTunniste("opiskelija")
-    .setLokiviesti("Opiskelija kirjautui sisään")
-    .build();
-audit.log(logMessage);
-// Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
+    String serviceName = "omatsivut";
+    Audit log = new Audit(serviceName);
+    LogMessage logMessage = LogMessage.builder()
+        .setId("ID")
+        .setPalveluTunniste("omatsivut")
+        .setTunniste("opiskelija")
+        .setLokiviesti("Opiskelija kirjautui sisään")
+        .build();
+    audit.log(logMessage);
+    // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
