@@ -23,7 +23,18 @@ SBT:
     "fi.vm.sade" % "auditlogger" % "1.0-SNAPSHOT"
 ```
 
-###slf4j
+###Käyttö
+
+Java: 
+```
+    String serviceName = "omatsivut";
+    Audit audit = new Audit(serviceName);
+    LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
+    audit.log(logMessage);
+    // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
+```
+
+###slf4j Logback konfiguraatio
 
 Audit lokittaa myös käyttäen slf4j fasadia, johon voi konfiguroida toteutuksen sovellluksessa.
 Alla Logback-esimerkki.
@@ -64,15 +75,4 @@ src/main/resources/logback.xml:
             <appender-ref ref="ROLLING" />
         </logger>
     </configuration>
-```
-
-###Käyttö
-
-Java: 
-```
-    String serviceName = "omatsivut";
-    Audit audit = new Audit(serviceName);
-    LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
-    audit.log(logMessage);
-    // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
