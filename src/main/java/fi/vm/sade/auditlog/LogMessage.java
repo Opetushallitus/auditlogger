@@ -2,47 +2,22 @@ package fi.vm.sade.auditlog;
 
 public class LogMessage {
     private final String id;
-    private final String palvelunTunniste;
-    private final String tunniste;
-    private final String lokiviesti;
+    private final String userIndentity;
+    private final String message;
 
     /**
      * @param id esim. oid
-     * @param palveluTunniste palvelunnimi esim. omatsivut
-     * @param tunniste esim. virkailija/opiskelija
-     * @param lokiviesti lokitettava viesti
+     * @param userIndentity esim. virkailija/opiskelija
+     * @param message lokitettava viesti
      */
-    public LogMessage(String id, String palveluTunniste, String tunniste, String lokiviesti) {
+    public LogMessage(String id, String userIndentity, String message) {
         this.id = id;
-        this.palvelunTunniste = palveluTunniste != null ? palveluTunniste.toUpperCase() : null;
-        this.tunniste = tunniste != null ? tunniste.toUpperCase() : null;
-        this.lokiviesti = lokiviesti;
-    }
-
-    public LogMessage(String id) {
-        this.id = id;
-        this.palvelunTunniste = null;
-        this.tunniste = null;
-        this.lokiviesti = null;
-    }
-
-    public LogMessage withPalvelunTunniste(String palvelunTunniste) {
-        return new LogMessage(this.id, palvelunTunniste, this.tunniste, this.lokiviesti);
-    }
-
-    public LogMessage withTunniste(String tunniste) {
-        return new LogMessage(this.id, this.palvelunTunniste, tunniste, this.lokiviesti);
-    }
-
-    public LogMessage withLokiviesti(String lokiviesti) {
-        return new LogMessage(this.id, this.palvelunTunniste, this.tunniste, lokiviesti);
+        this.userIndentity = userIndentity != null ? userIndentity : null;
+        this.message = message;
     }
 
     @Override
     public String toString() {
-        return "id=\'" + id + '\'' +
-                ", palvelunTunniste=\'" + palvelunTunniste + '\'' +
-                ", tunniste=\'" + tunniste + '\'' +
-                ", lokiviesti=\'" + lokiviesti + '\'';
+        return "id=\'"+id+"\', userIdentity=\'"+userIndentity+"\', message=\'"+message+"\'";
     }
 }

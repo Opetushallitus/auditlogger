@@ -71,13 +71,8 @@ src/main/resources/logback.xml:
 Java: 
 ```
     String serviceName = "omatsivut";
-    Audit log = new Audit(serviceName);
-    LogMessage logMessage = LogMessage.builder()
-        .setId("ID")
-        .setPalveluTunniste("omatsivut")
-        .setTunniste("opiskelija")
-        .setLokiviesti("Opiskelija kirjautui sisään")
-        .build();
+    Audit audit = new Audit(serviceName);
+    LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
     audit.log(logMessage);
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```

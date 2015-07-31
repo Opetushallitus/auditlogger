@@ -16,13 +16,13 @@ public class LoggerTest {
     @Before
     public void initMock() {
         loggerMock = mock(Logger.class);
-        audit = new Audit("test", loggerMock);
+        audit = new Audit(loggerMock, "test", ApplicationType.OPISKELIJA);
     }
 
     @Test
     public void smokeTest() {
-        audit.log("test message");
-        verify(loggerMock).info(anyString());
+        audit.log(new LogMessage("omatsivut", "opiskelija", "test message"));
+        verify(loggerMock).info(eq("[test]: id='omatsivut', userIdentity='opiskelija', message='test message'"));
     }
 
     @Test
@@ -32,16 +32,13 @@ public class LoggerTest {
             file.delete();
         }
 
-        Audit audit = new Audit("TEST");
+        Audit audit = new Audit("TEST", ApplicationType.VIRKAILIJA);
         audit.log("Testi viesti");
-        LogMessage logMessage = new LogMessage("ID")
-                .withPalvelunTunniste("omatsivut")
-                .withTunniste("opiskelija")
-                .withLokiviesti("Opiskelija kirjautui sisään");
+        LogMessage logMessage = new LogMessage("ID", "virkailija", "Virkailija kirjautui sisään");
         audit.log(logMessage);
 
         assertTrue(file.exists());
-        assertTrue(file.length() > 190);
+        assertTrue(file.length() > 160);
         file.delete();
         assertFalse(file.exists());
     }
