@@ -8,9 +8,10 @@ import org.slf4j.LoggerFactory;
 
 
 public class Audit {
-    private final SyslogIF syslog;
+    private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");;
     private final Logger log;
-    private String serviceName;
+    private final String serviceName;
+    private final String applicationType;
 
     /**
      * Create an Audit logger for service.
@@ -26,19 +27,19 @@ public class Audit {
      * Package private constructor for testing
      */
     Audit(Logger log, String serviceName, ApplicationType applicationType) {
-        this.syslog = Syslog.getInstance("unix_syslog");
-        SyslogConfigIF syslogConf = syslog.getConfig();
+        SyslogConfigIF syslogConf = SYSLOG.getConfig();
         syslogConf.setCharSet("UTF-8");
         syslogConf.setIdent(applicationType.toString().toLowerCase());
         this.log = log;
         this.serviceName = serviceName;
+        this.applicationType = applicationType.toString().toLowerCase();
     }
 
 
     void log(String message) {
-        final String msg = "["+serviceName+"]: " + message;
-        log.info(msg);
-        syslog.notice(msg);
+        final String msg = "["+serviceName+"] " + message;
+        log.info(applicationType + ": " + msg);
+        SYSLOG.notice(msg);
     }
 
     public void log(LogMessage logMessage) {
