@@ -34,13 +34,18 @@ Java:
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
 
-###slf4j Logback konfiguraatio
+###Logback-konfiguraatioesimerkki
 
 Audit lokittaa myös käyttäen slf4j fasadia, johon voi konfiguroida toteutuksen sovellluksessa.
 Alla Logback-esimerkki.
 
-Maven: 
+Maven pom.xml: 
 ``` 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
+    </dependency>
     <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
@@ -78,6 +83,23 @@ src/main/resources/logback.xml:
 ```
 
 ###log4j-kofiguraatioesimerkki
+
+Maven pom.xml:
+
+```
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-api</artifactId>
+  <version>1.7.12</version>
+</dependency>
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-log4j12</artifactId>
+  <version>1.7.12</version>
+</dependency>`
+```
+
+log4j.properties:
 
 ```
 log4j.logger.fi.vm.sade.auditlog.Audit=INFO, file
