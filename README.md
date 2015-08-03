@@ -76,3 +76,17 @@ src/main/resources/logback.xml:
         </logger>
     </configuration>
 ```
+
+###log4j-kofiguraatioesimerkki
+
+```
+log4j.logger.fi.vm.sade.auditlog.Audit=INFO, file
+
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+
+log4j.appender.file.File=auditlog.log
+log4j.appender.file.MaxFileSize=5MB
+log4j.appender.file.MaxBackupIndex=10
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%date AUDIT %m%n
+```
