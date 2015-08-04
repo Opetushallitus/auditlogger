@@ -102,12 +102,13 @@ Maven pom.xml:
 log4j.properties:
 
 ```
-log4j.logger.fi.vm.sade.auditlog.Audit=INFO, file
-log4j.appender.file=org.apache.log4j.RollingFileAppender
-log4j.appender.file.File=auditlog.log
-log4j.appender.file.Append=true
-log4j.appender.file.MaxFileSize=20MB
-log4j.appender.file.MaxBackupIndex=20
-log4j.appender.file.layout=org.apache.log4j.PatternLayout
-log4j.appender.file.layout.ConversionPattern=%date AUDIT %m%n
+log4j.logger.fi.vm.sade.auditlog.Audit=INFO, audit
+log4j.appender.audit=org.apache.log4j.RollingFileAppender
+log4j.appender.audit.File=auditlog.log
+log4j.appender.audit.Append=true
+log4j.appender.audit.MaxFileSize=20MB
+log4j.appender.audit.MaxBackupIndex=20
+log4j.appender.audit.layout=org.apache.log4j.PatternLayout
+log4j.appender.audit.layout.ConversionPattern=%date AUDIT %m%n
+log4j.appender.audit.encoding=UTF-8
 ```
