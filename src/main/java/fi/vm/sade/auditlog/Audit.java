@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class Audit {
-    private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");;
+    private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
