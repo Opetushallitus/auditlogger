@@ -38,7 +38,7 @@ public class Audit {
 
     void log(String message) {
         final String msg = "["+serviceName+"] " + message;
-        log.info(applicationType + ": " + msg);
+        log.info(applicationType + "-app: " + msg);
         SYSLOG.notice(msg);
     }
 
