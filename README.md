@@ -34,6 +34,17 @@ Java:
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
 
+###Kehitys
+
+OS X:
+Ajamalla `mvn test` Audit kirjoittaa lokia tiedostoihin:
+
+* /var/logs/system.log
+* ./auditlog_test.log (Huom! konfiguroitu logback_test.xml:ssä, testit siivoavat tämän tiedoston pois.)
+
+Syslogia voi ihmetellä myös OS X:n Console-sovelluksella.
+
+
 ###Logback-konfiguraatioesimerkki
 
 Audit lokittaa myös käyttäen slf4j fasadia, johon voi konfiguroida toteutuksen sovellluksessa.
