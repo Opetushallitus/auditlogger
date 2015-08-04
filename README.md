@@ -28,7 +28,7 @@ SBT:
 Java: 
 ```
     String serviceName = "omatsivut";
-    Audit audit = new Audit(serviceName);
+    Audit audit = new Audit(serviceName, ApplicationType.OPISKELIJA);
     LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
     audit.log(logMessage);
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
