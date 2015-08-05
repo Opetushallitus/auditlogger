@@ -21,8 +21,8 @@ public class LoggerTest {
 
     @Test
     public void smokeTest() {
-        audit.log(new LogMessage("omatsivut", "opiskelija", "test message"));
-        verify(loggerMock).info(eq("opiskelija-app: [test] id='omatsivut', userIdentity='opiskelija', message='test message'"));
+        audit.log(new LogMessage("ID", "opiskelija", "test message"));
+        verify(loggerMock).info(eq("opiskelija-app: [test] id='ID', userIdentity='opiskelija', message='test message'"));
     }
 
     @Test

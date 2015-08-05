@@ -11,7 +11,7 @@
             <maxFileSize>5MB</maxFileSize>
         </triggeringPolicy>
         <encoder>
-            <pattern>%date AUDIT %msg%n</pattern>
+            <pattern>%date %msg%n</pattern>
         </encoder>
     </appender>
 
