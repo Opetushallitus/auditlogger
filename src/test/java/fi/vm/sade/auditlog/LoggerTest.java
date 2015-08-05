@@ -21,8 +21,8 @@ public class LoggerTest {
 
     @Test
     public void smokeTest() {
-        audit.log(new LogMessage("ID", "opiskelija", "test message"));
-        verify(loggerMock).info(eq("opiskelija-app: [test] id='ID', userIdentity='opiskelija', message='test message'"));
+        audit.log(new LogMessage("ID", "test message"));
+        verify(loggerMock).info(eq("opiskelija-app: [test] id='ID', message='test message'"));
     }
 
     @Test
@@ -34,11 +34,11 @@ public class LoggerTest {
 
         Audit audit = new Audit("TEST", ApplicationType.VIRKAILIJA);
         audit.log("Testi viesti");
-        LogMessage logMessage = new LogMessage("ID", "virkailija", "Virkailija kirjautui sisään");
+        LogMessage logMessage = new LogMessage("ID", "Virkailija kirjautui sisään");
         audit.log(logMessage);
 
         assertTrue(file.exists());
-        assertTrue(file.length() > 160);
+        assertTrue(file.length() > 150);
         file.delete();
         assertFalse(file.exists());
     }

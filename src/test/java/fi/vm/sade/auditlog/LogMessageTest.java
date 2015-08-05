@@ -8,7 +8,7 @@ public class LogMessageTest {
 
     @Test
     public void toStringFormatsLogMessage() {
-        LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
-        assertEquals("id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'", logMessage.toString());
+        LogMessage logMessage = new LogMessage("ID", "Opiskelija kirjautui sisään");
+        assertEquals("id='ID', message='Opiskelija kirjautui sisään'", logMessage.toString());
     }
 }

@@ -14,7 +14,7 @@ Maven:
     <dependency>
         <groupId>fi.vm.sade</groupId>
         <artifactId>auditlogger</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </dependency>
 ```
        
@@ -29,18 +29,18 @@ Java:
 ```
     String serviceName = "omatsivut";
     Audit audit = new Audit(serviceName, ApplicationType.OPISKELIJA);
-    LogMessage logMessage = new LogMessage("ID", "opiskelija", "Opiskelija kirjautui sisään");
+    LogMessage logMessage = new LogMessage("ID", "Opiskelija kirjautui sisään");
     audit.log(logMessage);
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
 
 Syslog:
 
-`05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
+`05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', message='Opiskelija kirjautui sisään'`
 
 lokitiedosto (konfiguraatiosta riippuen, esim):
 
-`2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
+`2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', message='Opiskelija kirjautui sisään'`
 
 ###Kehitys
 
@@ -106,28 +106,28 @@ src/main/resources/logback.xml:
 Maven pom.xml:
 
 ```
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-api</artifactId>
-  <version>1.7.12</version>
-</dependency>
-<dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-log4j12</artifactId>
-  <version>1.7.12</version>
-</dependency>`
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.12</version>
+    </dependency>`
 ```
 
 log4j.properties:
 
 ```
-log4j.logger.fi.vm.sade.auditlog.Audit=INFO, audit
-log4j.appender.audit=org.apache.log4j.RollingFileAppender
-log4j.appender.audit.File=auditlog.log
-log4j.appender.audit.Append=true
-log4j.appender.audit.MaxFileSize=20MB
-log4j.appender.audit.MaxBackupIndex=20
-log4j.appender.audit.layout=org.apache.log4j.PatternLayout
-log4j.appender.audit.layout.ConversionPattern=%d AUDIT %m%n
-log4j.appender.audit.encoding=UTF-8
+    log4j.logger.fi.vm.sade.auditlog.Audit=INFO, audit
+    log4j.appender.audit=org.apache.log4j.RollingFileAppender
+    log4j.appender.audit.File=auditlog.log
+    log4j.appender.audit.Append=true
+    log4j.appender.audit.MaxFileSize=20MB
+    log4j.appender.audit.MaxBackupIndex=20
+    log4j.appender.audit.layout=org.apache.log4j.PatternLayout
+    log4j.appender.audit.layout.ConversionPattern=%d AUDIT %m%n
+    log4j.appender.audit.encoding=UTF-8
 ```
