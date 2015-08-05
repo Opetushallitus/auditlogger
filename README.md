@@ -34,9 +34,11 @@ Java:
     // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
 
-Syslog: `05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
+Syslog:
+`05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
 
-lokitiedosto (konfiguraatiosta riippuen, esim): `2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
+lokitiedosto (konfiguraatiosta riippuen, esim):
+`2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', userIdentity='opiskelija', message='Opiskelija kirjautui sisään'`
 
 ###Kehitys
 
