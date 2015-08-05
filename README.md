@@ -14,13 +14,13 @@ Maven:
     <dependency>
         <groupId>fi.vm.sade</groupId>
         <artifactId>auditlogger</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </dependency>
 ```
        
 SBT: 
 ```
-    "fi.vm.sade" % "auditlogger" % "1.0-SNAPSHOT"
+    "fi.vm.sade" % "auditlogger" % "1.0.1-SNAPSHOT"
 ```
 
 ###Käyttö
@@ -31,14 +31,13 @@ Java:
     Audit audit = new Audit(serviceName, ApplicationType.OPISKELIJA);
     LogMessage logMessage = new LogMessage("ID", "Opiskelija kirjautui sisään");
     audit.log(logMessage);
-    // Viesti menee syslog:iin ja tiedostoon /logs/auditlog_omatsivut.log
 ```
 
 Syslog:
 
 `05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', message='Opiskelija kirjautui sisään'`
 
-lokitiedosto (konfiguraatiosta riippuen, esim):
+lokitiedosto (konfiguraatiosta riippuen, esim /logs/auditlog_omatsivut.log):
 
 `2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', message='Opiskelija kirjautui sisään'`
 
