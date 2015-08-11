@@ -6,6 +6,8 @@ import org.graylog2.syslog4j.SyslogIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 
 public class Audit {
     private static final SyslogIF SYSLOG = Syslog.getInstance("unix_syslog");
@@ -36,13 +38,29 @@ public class Audit {
     }
 
 
-    void log(String message) {
-        final String msg = "["+serviceName+"] " + message;
-        log.info(applicationType + "-app: " + msg);
-        SYSLOG.notice(msg);
+    void log(Map<String,String> message) {
+        StringBuilder b= new StringBuilder("{");
+        b.append("\"").append("timestamp").append("\"").append(":\"").append(message.get(LogMessage.LogMessageBuilder.TIMESTAMP)).append("\"").append(",");
+        b.append("\"").append("serviceName").append("\"").append(":\"").append(serviceName).append("\"").append(",");
+        b.append("\"").append("applicationType").append("\"").append(":\"").append(applicationType).append("\"").append(",");
+        boolean firstEntry = true;
+        for(Map.Entry<String,String> e : message.entrySet()) {
+            if(e.getKey() == null ||e.getValue() == null || LogMessage.LogMessageBuilder.TIMESTAMP.equals(e.getKey())) {
+                continue;
+            }
+            if(!firstEntry) {
+                b.append(",");
+            } else {
+                firstEntry = false;
+            }
+            b.append("\"").append(e.getKey()).append("\"").append(":\"").append(e.getValue()).append("\"");
+        }
+        String logLine = b.append("}").toString();
+        log.info(logLine);
+        SYSLOG.notice(logLine);
     }
 
     public void log(LogMessage logMessage) {
-        log(logMessage.toString());
+        log(logMessage.messageMapping);
     }
 }

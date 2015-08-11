@@ -14,32 +14,44 @@ Maven:
     <dependency>
         <groupId>fi.vm.sade</groupId>
         <artifactId>auditlogger</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.2-SNAPSHOT</version>
     </dependency>
 ```
        
 SBT: 
 ```
-    "fi.vm.sade" % "auditlogger" % "1.0.1-SNAPSHOT"
+    "fi.vm.sade" % "auditlogger" % "1.0.2-SNAPSHOT"
 ```
 
 ###Käyttö
 
 Java: 
 ```
+    import static fi.vm.sade.auditlog.LogMessage.builder;
+
     String serviceName = "omatsivut";
     Audit audit = new Audit(serviceName, ApplicationType.OPISKELIJA);
-    LogMessage logMessage = new LogMessage("ID", "Opiskelija kirjautui sisään");
+    LogMessage logMessage = builder().id("testuser").hakukohdeOid("1.2.246.562.20.68888036172").message("hello").build();
+    audit.log(logMessage);
+
+    // Tilasiirtymän logitus
+    LogMessage logMessage = builder()
+        .id("testuser")
+        .hakemusOid("1.2.246.562.20.68888036172")
+        .add("hakemuksentila", HYVAKSYTTY)
+        .add("valintatuloksentila", VASTAANOTETTU_SITOVASTI, EHDOLLISESTI_VASTAANOTETTU)
+        .message("Hakijan vastaanottotila päivitetty sitovaksi")
+        .build();
     audit.log(logMessage);
 ```
 
 Syslog:
 
-`05/08/15 08:40:10,359 opiskelija-app: [test] id='ID', message='Opiskelija kirjautui sisään'`
+`{"id":"testuser","message":"test message","hakukohdeOid":"1.2.246.562.20.68888036172","serviceName":"test","applicationType":"opiskelija"}
 
 lokitiedosto (konfiguraatiosta riippuen, esim /logs/auditlog_omatsivut.log):
 
-`2015-08-05 08:40:20,359 opiskelija-app: [TEST] id='ID', message='Opiskelija kirjautui sisään'`
+`{"id":"testuser","message":"test message","hakukohdeOid":"1.2.246.562.20.68888036172","serviceName":"test","applicationType":"opiskelija"}
 
 ###Kehitys
 
@@ -127,6 +139,6 @@ log4j.properties:
     log4j.appender.audit.MaxFileSize=20MB
     log4j.appender.audit.MaxBackupIndex=20
     log4j.appender.audit.layout=org.apache.log4j.PatternLayout
-    log4j.appender.audit.layout.ConversionPattern=%d AUDIT %m%n
+    log4j.appender.audit.layout.ConversionPattern=%m%n
     log4j.appender.audit.encoding=UTF-8
 ```
