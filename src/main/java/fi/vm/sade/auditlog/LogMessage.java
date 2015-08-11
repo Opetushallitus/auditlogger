@@ -92,6 +92,10 @@ public class LogMessage {
             this.mapping.put(key, value.toString());
             return this;
         }
+        public LogMessageBuilder addAll(Map<String,String> mapping) {
+            this.mapping.putAll(mapping);
+            return this;
+        }
         public <T> LogMessageBuilder add(String key, T value, T oldValue) {
             this.mapping.put(key, value.toString());
             this.mapping.put(new StringBuilder(key).append(VANHA_ARVO_SUFFIX).toString(), oldValue.toString());
