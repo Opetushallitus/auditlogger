@@ -48,7 +48,7 @@ public class LoggerTest {
                 .put("id","testuser")
                 .put("timestamp",builder().SDF.format(now))
                 .put("message","test message")
-                .put("tila.vanha_arvo","TILA2")
+                .put("tila.old_value","TILA2")
                 .put("tila","TILA1")
                 .put("serviceName","test")
                 .put("applicationType","opiskelija").build());
