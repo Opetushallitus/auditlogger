@@ -29,9 +29,9 @@ public class LogMessage {
     public static class LogMessageBuilder { // 2015-08-05 08:40:20,359
         final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
         static final String ID = "id";
-        static final String VANHA_ARVO_SUFFIX = ".vanha_arvo";
+        static final String VANHA_ARVO_SUFFIX = ".old_value";
         static final String HAKEMUSOID = "hakemusOid";
-        static final String HENKILOOID = "henkiloOid";
+        static final String HAKIJAOID = "hakijaOid";
         static final String HAKUOID = "hakuOid";
         static final String HAKUKOHDEOID = "hakukohdeOid";
         static final String VALINTATAPAJONOOID = "valintatapajonoOid";
@@ -64,8 +64,8 @@ public class LogMessage {
             this.mapping.put(HAKUKOHDEOID, hakukohdeOid);
             return this;
         }
-        public LogMessageBuilder henkiloOid(String henkiloOid) {
-            this.mapping.put(HENKILOOID, henkiloOid);
+        public LogMessageBuilder hakijaOid(String hakijaOid) {
+            this.mapping.put(HAKIJAOID, hakijaOid);
             return this;
         }
         public LogMessageBuilder id(String id) {
