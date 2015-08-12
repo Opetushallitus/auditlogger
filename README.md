@@ -132,13 +132,14 @@ Maven pom.xml:
 log4j.properties:
 
 ```
-    log4j.logger.fi.vm.sade.auditlog.Audit=INFO, audit
-    log4j.appender.audit=org.apache.log4j.RollingFileAppender
-    log4j.appender.audit.File=auditlog.log
-    log4j.appender.audit.Append=true
-    log4j.appender.audit.MaxFileSize=20MB
-    log4j.appender.audit.MaxBackupIndex=20
-    log4j.appender.audit.layout=org.apache.log4j.PatternLayout
-    log4j.appender.audit.layout.ConversionPattern=%m%n
-    log4j.appender.audit.encoding=UTF-8
+    log4j.additivity.fi.vm.sade.auditlog.Audit=false
+    log4j.logger.fi.vm.sade.auditlog.Audit=INFO, AUDIT
+    log4j.appender.AUDIT=org.apache.log4j.RollingFileAppender
+    log4j.appender.AUDIT.File=${user.home}/tomcat/logs/auditlog_valintalaskentakoostepalvelu.log
+    log4j.appender.AUDIT.Append=true
+    log4j.appender.AUDIT.MaxFileSize=20MB
+    log4j.appender.AUDIT.MaxBackupIndex=20
+    log4j.appender.AUDIT.layout=org.apache.log4j.PatternLayout
+    log4j.appender.AUDIT.layout.ConversionPattern=%m%n
+    log4j.appender.AUDIT.encoding=UTF-8
 ```
