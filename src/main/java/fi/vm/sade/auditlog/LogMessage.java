@@ -127,6 +127,9 @@ public class LogMessage {
             return add(new StringBuilder(key).append(VANHA_ARVO_SUFFIX).toString(), oldValue);
         }
         public <T> LogMessageBuilder add(String key, T value) {
+            if(value == null) {
+                return this;
+            }
             if(value instanceof Date) {
                 safePut(key, safeFormat((Date)value));
             } else {
