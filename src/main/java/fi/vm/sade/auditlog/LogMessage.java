@@ -36,6 +36,7 @@ public class LogMessage {
         static final String HAKUKOHDEOID = "hakukohdeOid";
         static final String HAKIJARYHMAOID = "hakijaryhmaOid";
         static final String VALINTARYHMAOID = "valintaryhmaOid";
+        static final String HAKIJARYHMAVALINTATAPAJONOOID = "hakijaryhmaValintatapajonoOid";
         static final String VALINTATAPAJONOOID = "valintatapajonoOid";
         static final String VALINNANVAIHEOID = "valinnanvaiheOid";
         static final String TARJOAJAOID = "tarjoajaOid";
@@ -72,6 +73,10 @@ public class LogMessage {
         }
         public LogMessageBuilder hakijaryhmaOid(String hakijaryhmaOid) {
             this.mapping.put(HAKIJARYHMAOID, hakijaryhmaOid);
+            return this;
+        }
+        public LogMessageBuilder hakijaryhmaValintatapajonoOid(String hakijaryhmaValintatapajonoOid) {
+            this.mapping.put(HAKIJARYHMAVALINTATAPAJONOOID, hakijaryhmaValintatapajonoOid);
             return this;
         }
         public LogMessageBuilder valintaryhmaOid(String valintaryhmaOid) {
