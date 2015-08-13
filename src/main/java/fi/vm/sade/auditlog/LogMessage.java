@@ -49,81 +49,89 @@ public class LogMessage {
             this.mapping = new HashMap<>();
             timestamp(new Date().getTime());
         }
-        public LogMessageBuilder timestamp(Date timestamp) {
-            this.mapping.put(TIMESTAMP, SDF.format(timestamp));
+        private String safeFormat(Date d) {
+            if(d != null) {
+                try {
+                return SDF.format(d);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+            return null;
+        }
+        private LogMessageBuilder safePut(String key, String value) {
+            if(key != null && value != null) {
+                this.mapping.put(key, value);
+            }
             return this;
         }
-        public LogMessageBuilder timestamp(long timestamp) {
-            this.mapping.put(TIMESTAMP, SDF.format(new Date(timestamp)));
-            return this;
+        public LogMessageBuilder timestamp(Date timestamp) {
+            return safePut(TIMESTAMP, safeFormat(timestamp));
+        }
+        public LogMessageBuilder timestamp(Long timestamp) {
+            if(timestamp == null) {
+                return this;
+            }
+            return safePut(TIMESTAMP, safeFormat(new Date(timestamp)));
         }
         public LogMessageBuilder hakemusOid(String hakemusOid) {
-            this.mapping.put(HAKEMUSOID, hakemusOid);
-            return this;
+            return safePut(HAKEMUSOID, hakemusOid);
         }
         public LogMessageBuilder valintakoeOid(String valintakoeOid) {
-            this.mapping.put(VALINTAKOEOID, valintakoeOid);
-            return this;
+            return safePut(VALINTAKOEOID, valintakoeOid);
         }
         public LogMessageBuilder jarjestyskriteeriOid(String jarjestyskriteeriOid) {
-            this.mapping.put(JARJESTYSKRITEERIOID, jarjestyskriteeriOid);
-            return this;
+            return safePut(JARJESTYSKRITEERIOID, jarjestyskriteeriOid);
         }
         public LogMessageBuilder hakuOid(String hakuOid) {
-            this.mapping.put(HAKUOID, hakuOid);
-            return this;
+            return safePut(HAKUOID, hakuOid);
         }
         public LogMessageBuilder hakukohdeOid(String hakukohdeOid) {
-            this.mapping.put(HAKUKOHDEOID, hakukohdeOid);
-            return this;
+            return safePut(HAKUKOHDEOID, hakukohdeOid);
         }
         public LogMessageBuilder hakijaOid(String hakijaOid) {
-            this.mapping.put(HAKIJAOID, hakijaOid);
-            return this;
+            return safePut(HAKIJAOID, hakijaOid);
         }
         public LogMessageBuilder hakijaryhmaOid(String hakijaryhmaOid) {
-            this.mapping.put(HAKIJARYHMAOID, hakijaryhmaOid);
-            return this;
+            return safePut(HAKIJARYHMAOID, hakijaryhmaOid);
         }
         public LogMessageBuilder hakijaryhmaValintatapajonoOid(String hakijaryhmaValintatapajonoOid) {
-            this.mapping.put(HAKIJARYHMAVALINTATAPAJONOOID, hakijaryhmaValintatapajonoOid);
-            return this;
+            return safePut(HAKIJARYHMAVALINTATAPAJONOOID, hakijaryhmaValintatapajonoOid);
         }
         public LogMessageBuilder valintaryhmaOid(String valintaryhmaOid) {
-            this.mapping.put(VALINTARYHMAOID, valintaryhmaOid);
-            return this;
+            return safePut(VALINTARYHMAOID, valintaryhmaOid);
         }
         public LogMessageBuilder id(String id) {
-            this.mapping.put(ID,id);
-            return this;
+            return safePut(ID,id);
         }
         public LogMessageBuilder message(String message) {
-            this.mapping.put(MESSAGE,message);
-            return this;
+            return safePut(MESSAGE,message);
         }
         public LogMessageBuilder valinnanvaiheOid(String valinnanvaiheOid) {
-            this.mapping.put(VALINNANVAIHEOID, valinnanvaiheOid);
-            return this;
+            return safePut(VALINNANVAIHEOID, valinnanvaiheOid);
         }
         public LogMessageBuilder valintatapajonoOid(String valintatapajonoOid) {
-            this.mapping.put(VALINTATAPAJONOOID, valintatapajonoOid);
-            return this;
+            return safePut(VALINTATAPAJONOOID, valintatapajonoOid);
         }
         public LogMessageBuilder tarjoajaOid(String tarjoajaOid) {
-            this.mapping.put(TARJOAJAOID, tarjoajaOid);
-            return this;
-        }
-        public <T> LogMessageBuilder add(String key, T value) {
-            this.mapping.put(key, value.toString());
-            return this;
+            return safePut(TARJOAJAOID, tarjoajaOid);
         }
         public LogMessageBuilder addAll(Map<String,String> mapping) {
-            this.mapping.putAll(mapping);
+            if(mapping != null) {
+                this.mapping.putAll(mapping);
+            }
             return this;
         }
         public <T> LogMessageBuilder add(String key, T value, T oldValue) {
-            this.mapping.put(key, value.toString());
-            this.mapping.put(new StringBuilder(key).append(VANHA_ARVO_SUFFIX).toString(), oldValue.toString());
+            add(key,value);
+            return add(new StringBuilder(key).append(VANHA_ARVO_SUFFIX).toString(), oldValue);
+        }
+        public <T> LogMessageBuilder add(String key, T value) {
+            if(value instanceof Date) {
+                safePut(key, safeFormat((Date)value));
+            } else {
+                safePut(key, value.toString());
+            }
             return this;
         }
         public LogMessage build() {
