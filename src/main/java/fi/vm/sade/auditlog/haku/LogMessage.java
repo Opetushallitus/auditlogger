@@ -2,7 +2,6 @@ package fi.vm.sade.auditlog.haku;
 
 import fi.vm.sade.auditlog.AbstractLogMessage;
 import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
-import fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriOperation;
 
 import java.util.Map;
 
