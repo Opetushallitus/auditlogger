@@ -1,13 +1,12 @@
 package fi.vm.sade.auditlog.hakurekisteri;
 
 import fi.vm.sade.auditlog.AbstractLogMessage;
-import fi.vm.sade.auditlog.CommonLogMessageFields;
-import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.*;
+import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+
+import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.OPERAATIO;
+import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.RESOURCE_NAME;
 
 public class LogMessage extends AbstractLogMessage {
     public LogMessage(Map<String,String> messageMapping) {
@@ -18,45 +17,9 @@ public class LogMessage extends AbstractLogMessage {
         return new LogMessageBuilder();
     }
 
-    public static class LogMessageBuilder {
-        final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-        private final Map<String,String> mapping;
-
-        public LogMessageBuilder() {
-            this.mapping = new HashMap<>();
-            timestamp(new Date().getTime());
-        }
-        private String safeFormat(Date d) {
-            if(d != null) {
-                try {
-                    return SDF.format(d);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-            return null;
-        }
-        private LogMessageBuilder safePut(String key, String value) {
-            if(key != null && value != null) {
-                this.mapping.put(key, value);
-            }
-            return this;
-        }
-        public LogMessageBuilder timestamp(Date timestamp) {
-            return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(timestamp));
-        }
-        public LogMessageBuilder timestamp(Long timestamp) {
-            if(timestamp == null) {
-                return this;
-            }
-            return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(new Date(timestamp)));
-        }
-        public LogMessageBuilder id(String id) {
-            return safePut(CommonLogMessageFields.ID,id);
-        }
-
-        public LogMessageBuilder message(String message) {
-            return safePut(CommonLogMessageFields.MESSAGE,message);
+    public static class LogMessageBuilder extends SimpleLogMessageBuilder<LogMessageBuilder> {
+        public LogMessage build() {
+            return new LogMessage(mapping);
         }
 
         public LogMessageBuilder setOperaatio(HakuRekisteriOperation operaatio) {
@@ -65,31 +28,6 @@ public class LogMessage extends AbstractLogMessage {
 
         public LogMessageBuilder setResourceName(String resourceName) {
             return safePut(RESOURCE_NAME, resourceName);
-        }
-
-        public LogMessageBuilder addAll(Map<String,String> mapping) {
-            if(mapping != null) {
-                this.mapping.putAll(mapping);
-            }
-            return this;
-        }
-        public <T> LogMessageBuilder add(String key, T value, T oldValue) {
-            add(key,value);
-            return add(key + CommonLogMessageFields.VANHA_ARVO_SUFFIX, oldValue);
-        }
-        public <T> LogMessageBuilder add(String key, T value) {
-            if(value == null) {
-                return this;
-            }
-            if(value instanceof Date) {
-                safePut(key, safeFormat((Date)value));
-            } else {
-                safePut(key, value.toString());
-            }
-            return this;
-        }
-        public LogMessage build() {
-            return new LogMessage(mapping);
         }
     }
 }

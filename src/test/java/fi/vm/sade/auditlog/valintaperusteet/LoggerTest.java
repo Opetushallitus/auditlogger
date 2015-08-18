@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -21,11 +22,12 @@ import static org.mockito.Mockito.*;
 import static fi.vm.sade.auditlog.valintaperusteet.LogMessage.builder;
 
 public class LoggerTest {
-    private static enum TESTENUM {
+    private enum TESTENUM {
         TILA1, TILA2
     }
     private Audit audit;
     private Logger loggerMock;
+    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 
     @Before
     public void initMock() {
@@ -46,7 +48,7 @@ public class LoggerTest {
         verify(loggerMock, times(1)).info(infoCapture.capture());
         Assert.assertEquals(jsonToMap(infoCapture.getValue()), ImmutableMap.builder()
                 .put("id","testuser")
-                .put("timestamp",builder().SDF.format(now))
+                .put("timestamp",SDF.format(now))
                 .put("message","test message")
                 .put("tila.old_value","TILA2")
                 .put("tila","TILA1")
