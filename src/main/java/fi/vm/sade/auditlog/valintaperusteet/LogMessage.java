@@ -1,4 +1,7 @@
-package fi.vm.sade.auditlog;
+package fi.vm.sade.auditlog.valintaperusteet;
+
+import fi.vm.sade.auditlog.CommonLogMessageFields;
+import static fi.vm.sade.auditlog.valintaperusteet.ValintaperusteetMessageFields.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -15,9 +18,6 @@ import java.text.SimpleDateFormat;
 public class LogMessage {
     final Map<String,String> messageMapping;
 
-    /**
-     * @param messageMapping lokitettava viesti
-     */
     private LogMessage(Map<String,String> messageMapping) {
         this.messageMapping = messageMapping;
     }
@@ -26,25 +26,10 @@ public class LogMessage {
         return new LogMessageBuilder();
     }
 
-    public static class LogMessageBuilder { // 2015-08-05 08:40:20,359
+    public static class LogMessageBuilder {
         final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-        static final String ID = "id";
-        static final String VANHA_ARVO_SUFFIX = ".old_value";
-        static final String HAKEMUSOID = "hakemusOid";
-        static final String HAKIJAOID = "hakijaOid";
-        static final String HAKUOID = "hakuOid";
-        static final String HAKUKOHDEOID = "hakukohdeOid";
-        static final String HAKIJARYHMAOID = "hakijaryhmaOid";
-        static final String VALINTAKOEOID = "valintakoeOid";
-        static final String VALINTARYHMAOID = "valintaryhmaOid";
-        static final String HAKIJARYHMAVALINTATAPAJONOOID = "hakijaryhmaValintatapajonoOid";
-        static final String JARJESTYSKRITEERIOID = "jarjestyskriteeriOid";
-        static final String VALINTATAPAJONOOID = "valintatapajonoOid";
-        static final String VALINNANVAIHEOID = "valinnanvaiheOid";
-        static final String TARJOAJAOID = "tarjoajaOid";
-        static final String MESSAGE = "message";
-        static final String TIMESTAMP = "timestamp";
         private final Map<String,String> mapping;
+
         public LogMessageBuilder() {
             this.mapping = new HashMap<>();
             timestamp(new Date().getTime());
@@ -66,13 +51,13 @@ public class LogMessage {
             return this;
         }
         public LogMessageBuilder timestamp(Date timestamp) {
-            return safePut(TIMESTAMP, safeFormat(timestamp));
+            return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(timestamp));
         }
         public LogMessageBuilder timestamp(Long timestamp) {
             if(timestamp == null) {
                 return this;
             }
-            return safePut(TIMESTAMP, safeFormat(new Date(timestamp)));
+            return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(new Date(timestamp)));
         }
         public LogMessageBuilder hakemusOid(String hakemusOid) {
             return safePut(HAKEMUSOID, hakemusOid);
@@ -102,10 +87,10 @@ public class LogMessage {
             return safePut(VALINTARYHMAOID, valintaryhmaOid);
         }
         public LogMessageBuilder id(String id) {
-            return safePut(ID,id);
+            return safePut(CommonLogMessageFields.ID,id);
         }
         public LogMessageBuilder message(String message) {
-            return safePut(MESSAGE,message);
+            return safePut(CommonLogMessageFields.MESSAGE,message);
         }
         public LogMessageBuilder valinnanvaiheOid(String valinnanvaiheOid) {
             return safePut(VALINNANVAIHEOID, valinnanvaiheOid);
@@ -124,7 +109,7 @@ public class LogMessage {
         }
         public <T> LogMessageBuilder add(String key, T value, T oldValue) {
             add(key,value);
-            return add(new StringBuilder(key).append(VANHA_ARVO_SUFFIX).toString(), oldValue);
+            return add(key + CommonLogMessageFields.VANHA_ARVO_SUFFIX, oldValue);
         }
         public <T> LogMessageBuilder add(String key, T value) {
             if(value == null) {
@@ -142,5 +127,7 @@ public class LogMessage {
         }
     }
 
-
+    public Map<String, String> getMessageMapping() {
+        return messageMapping;
+    }
 }

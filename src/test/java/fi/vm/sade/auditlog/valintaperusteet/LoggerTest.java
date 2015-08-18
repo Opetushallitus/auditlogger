@@ -1,24 +1,24 @@
-package fi.vm.sade.auditlog;
+package fi.vm.sade.auditlog.valintaperusteet;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import fi.vm.sade.auditlog.ApplicationType;
+import fi.vm.sade.auditlog.Audit;
+import fi.vm.sade.auditlog.valintaperusteet.LogMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static fi.vm.sade.auditlog.LogMessage.builder;
+import static fi.vm.sade.auditlog.valintaperusteet.LogMessage.builder;
 
 public class LoggerTest {
     private static enum TESTENUM {

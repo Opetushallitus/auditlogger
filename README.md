@@ -14,20 +14,23 @@ Maven:
     <dependency>
         <groupId>fi.vm.sade</groupId>
         <artifactId>auditlogger</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>versio-pom.xml-tiedostossa</version>
     </dependency>
 ```
        
 SBT: 
 ```
-    "fi.vm.sade" % "auditlogger" % "1.0.2-SNAPSHOT"
+    "fi.vm.sade" % "auditlogger" % "versio-pom.xml-tiedostossa"
 ```
 
 ###Käyttö
 
+Jokaiselle palvelulle on oma paketti, jonka alta löytyy LogMessage-luokka, jota tulisi käyttää. Oheisessa esimerkissä 
+käytetään valintaperusteet-repon versiota. 
+
 Java: 
 ```
-    import static fi.vm.sade.auditlog.LogMessage.builder;
+    import static fi.vm.sade.auditlog.valintaperusteet.LogMessage.builder;
 
     String serviceName = "omatsivut";
     Audit audit = new Audit(serviceName, ApplicationType.OPISKELIJA);

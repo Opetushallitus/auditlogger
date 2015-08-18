@@ -1,5 +1,6 @@
 package fi.vm.sade.auditlog;
 
+import fi.vm.sade.auditlog.valintaperusteet.LogMessage;
 import org.graylog2.syslog4j.Syslog;
 import org.graylog2.syslog4j.SyslogConfigIF;
 import org.graylog2.syslog4j.SyslogIF;
@@ -25,10 +26,7 @@ public class Audit {
         this(LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName()), serviceName, applicationType);
     }
 
-    /**
-     * Package private constructor for testing
-     */
-    Audit(Logger log, String serviceName, ApplicationType applicationType) {
+    public Audit(Logger log, String serviceName, ApplicationType applicationType) {
         SyslogConfigIF syslogConf = SYSLOG.getConfig();
         syslogConf.setCharSet("UTF-8");
         syslogConf.setIdent(applicationType.toString().toLowerCase() + "-app");
@@ -40,12 +38,12 @@ public class Audit {
 
     void log(Map<String,String> message) {
         StringBuilder b= new StringBuilder("{");
-        b.append("\"").append("timestamp").append("\"").append(":\"").append(message.get(LogMessage.LogMessageBuilder.TIMESTAMP)).append("\"").append(",");
+        b.append("\"").append("timestamp").append("\"").append(":\"").append(message.get(CommonLogMessageFields.TIMESTAMP)).append("\"").append(",");
         b.append("\"").append("serviceName").append("\"").append(":\"").append(serviceName).append("\"").append(",");
         b.append("\"").append("applicationType").append("\"").append(":\"").append(applicationType).append("\"").append(",");
         boolean firstEntry = true;
         for(Map.Entry<String,String> e : message.entrySet()) {
-            if(e.getKey() == null ||e.getValue() == null || LogMessage.LogMessageBuilder.TIMESTAMP.equals(e.getKey())) {
+            if(e.getKey() == null ||e.getValue() == null || CommonLogMessageFields.TIMESTAMP.equals(e.getKey())) {
                 continue;
             }
             if(!firstEntry) {
@@ -61,6 +59,6 @@ public class Audit {
     }
 
     public void log(LogMessage logMessage) {
-        log(logMessage.messageMapping);
+        log(logMessage.getMessageMapping());
     }
 }
