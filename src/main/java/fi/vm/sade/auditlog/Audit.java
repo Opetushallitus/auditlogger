@@ -1,6 +1,5 @@
 package fi.vm.sade.auditlog;
 
-import fi.vm.sade.auditlog.valintaperusteet.LogMessage;
 import org.graylog2.syslog4j.Syslog;
 import org.graylog2.syslog4j.SyslogConfigIF;
 import org.graylog2.syslog4j.SyslogIF;
@@ -58,7 +57,7 @@ public class Audit {
         SYSLOG.notice(logLine);
     }
 
-    public void log(LogMessage logMessage) {
+    public void log(AbstractLogMessage logMessage) {
         log(logMessage.getMessageMapping());
     }
 }

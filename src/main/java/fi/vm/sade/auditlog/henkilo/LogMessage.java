@@ -1,8 +1,9 @@
-package fi.vm.sade.auditlog.valintaperusteet;
+package fi.vm.sade.auditlog.henkilo;
 
 import fi.vm.sade.auditlog.AbstractLogMessage;
 import fi.vm.sade.auditlog.CommonLogMessageFields;
-import static fi.vm.sade.auditlog.valintaperusteet.ValintaperusteetMessageFields.*;
+
+import static fi.vm.sade.auditlog.henkilo.HenkiloMessageFields.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class LogMessage extends AbstractLogMessage {
         private String safeFormat(Date d) {
             if(d != null) {
                 try {
-                return SDF.format(d);
+                    return SDF.format(d);
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
@@ -51,48 +52,34 @@ public class LogMessage extends AbstractLogMessage {
             }
             return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(new Date(timestamp)));
         }
-        public LogMessageBuilder hakemusOid(String hakemusOid) {
-            return safePut(HAKEMUSOID, hakemusOid);
-        }
-        public LogMessageBuilder valintakoeOid(String valintakoeOid) {
-            return safePut(VALINTAKOEOID, valintakoeOid);
-        }
-        public LogMessageBuilder jarjestyskriteeriOid(String jarjestyskriteeriOid) {
-            return safePut(JARJESTYSKRITEERIOID, jarjestyskriteeriOid);
-        }
-        public LogMessageBuilder hakuOid(String hakuOid) {
-            return safePut(HAKUOID, hakuOid);
-        }
-        public LogMessageBuilder hakukohdeOid(String hakukohdeOid) {
-            return safePut(HAKUKOHDEOID, hakukohdeOid);
-        }
-        public LogMessageBuilder hakijaOid(String hakijaOid) {
-            return safePut(HAKIJAOID, hakijaOid);
-        }
-        public LogMessageBuilder hakijaryhmaOid(String hakijaryhmaOid) {
-            return safePut(HAKIJARYHMAOID, hakijaryhmaOid);
-        }
-        public LogMessageBuilder hakijaryhmaValintatapajonoOid(String hakijaryhmaValintatapajonoOid) {
-            return safePut(HAKIJARYHMAVALINTATAPAJONOOID, hakijaryhmaValintatapajonoOid);
-        }
-        public LogMessageBuilder valintaryhmaOid(String valintaryhmaOid) {
-            return safePut(VALINTARYHMAOID, valintaryhmaOid);
-        }
         public LogMessageBuilder id(String id) {
             return safePut(CommonLogMessageFields.ID,id);
         }
+
         public LogMessageBuilder message(String message) {
             return safePut(CommonLogMessageFields.MESSAGE,message);
         }
-        public LogMessageBuilder valinnanvaiheOid(String valinnanvaiheOid) {
-            return safePut(VALINNANVAIHEOID, valinnanvaiheOid);
+
+        public LogMessageBuilder kohdeHenkilo(String kohdeHenkiloOid) {
+            return safePut(KOHDEHENKILO_OID, kohdeHenkiloOid);
         }
-        public LogMessageBuilder valintatapajonoOid(String valintatapajonoOid) {
-            return safePut(VALINTATAPAJONOOID, valintatapajonoOid);
+
+        public LogMessageBuilder kohdeOrganisaatio(String kohdeOrganisaatioOid) {
+            return safePut(KOHDEORGANISAATIO_OID, kohdeOrganisaatioOid);
         }
-        public LogMessageBuilder tarjoajaOid(String tarjoajaOid) {
-            return safePut(TARJOAJAOID, tarjoajaOid);
+
+        public LogMessageBuilder lisatieto(String lisatieto) {
+            return safePut(LISATIETO, lisatieto);
         }
+
+        public LogMessageBuilder tapahtumatyyppi(String tapahtumatyyppi) {
+            return safePut(TAPAHTUMATYYPPI, tapahtumatyyppi);
+        }
+
+        public LogMessageBuilder setOperaatio(HenkiloOperation operaatio) {
+            return safePut(OPERAATIO, operaatio.name());
+        }
+
         public LogMessageBuilder addAll(Map<String,String> mapping) {
             if(mapping != null) {
                 this.mapping.putAll(mapping);
