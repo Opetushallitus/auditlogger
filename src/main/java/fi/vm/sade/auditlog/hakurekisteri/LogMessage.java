@@ -5,7 +5,7 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 
 import java.util.Map;
 
-import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.OPERAATIO;
+import static fi.vm.sade.auditlog.CommonLogMessageFields.*;
 import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.RESOURCE_NAME;
 
 public class LogMessage extends AbstractLogMessage {

@@ -13,6 +13,4 @@ public class ValintaperusteetMessageFields {
     public static final String VALINTATAPAJONOOID = "valintatapajonoOid";
     public static final String VALINNANVAIHEOID = "valinnanvaiheOid";
     public static final String TARJOAJAOID = "tarjoajaOid";
-
-    public static final String OPERAATIO  = "operaatio";
 }

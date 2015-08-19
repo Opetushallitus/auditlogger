@@ -5,10 +5,8 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 
 import java.util.Map;
 
+import static fi.vm.sade.auditlog.CommonLogMessageFields.*;
 import static fi.vm.sade.auditlog.haku.HakuMessageFields.*;
-import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.OPERAATIO;
-import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.RESOURCE_NAME;
-
 
 public class LogMessage extends AbstractLogMessage {
     public LogMessage(Map<String,String> messageMapping) {
@@ -38,10 +36,6 @@ public class LogMessage extends AbstractLogMessage {
 
         public LogMessageBuilder setOperaatio(HakuOperation operaatio) {
             return safePut(OPERAATIO, operaatio.name());
-        }
-
-        public LogMessageBuilder setResourceName(String resourceName) {
-            return safePut(RESOURCE_NAME, resourceName);
         }
     }
 }
