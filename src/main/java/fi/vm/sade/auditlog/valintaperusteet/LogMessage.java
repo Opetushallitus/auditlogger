@@ -68,5 +68,9 @@ public class LogMessage extends AbstractLogMessage {
         public LogMessageBuilder tarjoajaOid(String tarjoajaOid) {
             return safePut(TARJOAJAOID, tarjoajaOid);
         }
+
+        public LogMessageBuilder setOperaatio(ValintaperusteetOperation operaatio) {
+            return safePut(OPERAATIO, operaatio.name());
+        }
     }
 }
