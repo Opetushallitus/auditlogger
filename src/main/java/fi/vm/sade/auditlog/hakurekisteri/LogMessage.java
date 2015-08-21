@@ -6,6 +6,7 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 import java.util.Map;
 
 import static fi.vm.sade.auditlog.CommonLogMessageFields.*;
+import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.RESOURCE_ID;
 import static fi.vm.sade.auditlog.hakurekisteri.HakuRekisteriMessageFields.RESOURCE_NAME;
 
 public class LogMessage extends AbstractLogMessage {
@@ -29,5 +30,7 @@ public class LogMessage extends AbstractLogMessage {
         public LogMessageBuilder setResourceName(String resourceName) {
             return safePut(RESOURCE_NAME, resourceName);
         }
+
+        public LogMessageBuilder setResourceId(String resourceId) { return safePut(RESOURCE_ID, resourceId); }
     }
 }
