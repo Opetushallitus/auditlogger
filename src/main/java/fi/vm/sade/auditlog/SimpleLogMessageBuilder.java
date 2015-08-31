@@ -7,7 +7,7 @@ import java.util.Map;
 
 
 public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
-    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     protected final Map<String, String> mapping;
 
     public SimpleLogMessageBuilder() {
