@@ -27,7 +27,7 @@ public class LoggerTest {
     }
     private Audit audit;
     private Logger loggerMock;
-    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     @Before
     public void initMock() {
