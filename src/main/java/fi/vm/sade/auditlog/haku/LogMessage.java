@@ -34,6 +34,10 @@ public class LogMessage extends AbstractLogMessage {
             return safePut(HAKUKOHDEOID, hakukohdeOid);
         }
 
+        public LogMessageBuilder hakukohderyhmaOid(String hakukohderyhmaOid) {
+            return safePut(HAKUKOHDERYHMAOID, hakukohderyhmaOid);
+        }
+
         public LogMessageBuilder setOperaatio(HakuOperation operaatio) {
             return safePut(OPERAATIO, operaatio.name());
         }
