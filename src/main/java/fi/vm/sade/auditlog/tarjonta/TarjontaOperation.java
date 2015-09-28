@@ -4,6 +4,8 @@ public enum TarjontaOperation {
     CREATE,
     UPDATE,
     DELETE,
+    COPY,
+    MOVE,
     PUBLISH,
     UNPUBLISH,
     ADD_KOULUTUS_TO_HAKUKOHDE,
