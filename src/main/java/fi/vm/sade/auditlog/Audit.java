@@ -1,16 +1,11 @@
 package fi.vm.sade.auditlog;
 
-import org.graylog2.syslog4j.Syslog;
-import org.graylog2.syslog4j.SyslogConfigIF;
-import org.graylog2.syslog4j.SyslogIF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-
 public class Audit {
-    private static final SyslogIF SYSLOG = Syslog.getInstance("tcp");
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
@@ -26,14 +21,10 @@ public class Audit {
     }
 
     public Audit(Logger log, String serviceName, ApplicationType applicationType) {
-        SyslogConfigIF syslogConf = SYSLOG.getConfig();
-        syslogConf.setCharSet("UTF-8");
-        syslogConf.setIdent(applicationType.toString().toLowerCase() + "-app");
         this.log = log;
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
     }
-
 
     void log(Map<String,String> message) {
         StringBuilder b= new StringBuilder("{");
@@ -54,7 +45,6 @@ public class Audit {
         }
         String logLine = b.append("}").toString();
         log.info(logLine);
-        SYSLOG.notice(logLine);
     }
 
     public void log(AbstractLogMessage logMessage) {
