@@ -32,5 +32,9 @@ public class LogMessage extends AbstractLogMessage {
         public LogMessageBuilder setResourceOid(String oid) {
             return safePut(TarjontaMessageFields.RESOURCE_OID, oid);
         }
+
+        public LogMessageBuilder setDelta(String delta) {
+            return safePut(TarjontaMessageFields.DELTA, delta);
+        }
     }
 }
