@@ -1,6 +1,9 @@
 package fi.vm.sade.auditlog.hakuperusteet;
 
 public class HakuPerusteetMessageFields {
+    public static final String OPPIJAHENKILOOID = "oppijaHenkiloOid";
+    public static final String VIRKAILIJAHENKILOOID = "virkailijaHenkiloOid";
+
     public static final String EMAIL = "email";
     public static final String HAKUOID = "hakuOid";
     public static final String HAKUKOHDEOID = "hakukohdeOid";

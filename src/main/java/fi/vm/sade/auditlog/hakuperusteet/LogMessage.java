@@ -24,6 +24,14 @@ public class LogMessage extends AbstractLogMessage {
             return new LogMessage(mapping);
         }
 
+        public LogMessageBuilder oppijaHenkiloOid(String oppijaHenkiloOid) {
+            return safePut(OPPIJAHENKILOOID, oppijaHenkiloOid);
+        }
+
+        public LogMessageBuilder virkailijaHenkiloOid(String virkailijaHenkiloOid) {
+            return safePut(VIRKAILIJAHENKILOOID, virkailijaHenkiloOid);
+        }
+
         public LogMessageBuilder email(String email) {
             return safePut(EMAIL, email);
         }
