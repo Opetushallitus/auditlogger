@@ -33,6 +33,13 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
         return (T) this;
     }
 
+    protected T safePut(String key, Date value) {
+        if (key != null && value != null) {
+            this.mapping.put(key, safeFormat(value));
+        }
+        return (T) this;
+    }
+
     public T timestamp(Date timestamp) {
         return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(timestamp));
     }
