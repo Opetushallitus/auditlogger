@@ -40,13 +40,25 @@ public class LoggerTest {
     }
 
     @Test
-    public void smokeTest() throws ParseException {
-        Date now = new SimpleDateFormat("yyyy-MM-dd").parse("2015-12-01");
-        audit.log(builder().id("testuser").timestamp(now).add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test message").build());
+    public void testLogMessageFormat() throws ParseException {
+        final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test message");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
+    }
+
+    @Test
+    public void testJsonEncoding() throws ParseException {
+        final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test \" message");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
+    }
+
+    private void verifyLogMessage(final LogMessage.LogMessageBuilder msg, final String expectedMessage) {
+        Date now = date("2015-12-01");
+        audit.log(msg.timestamp(now).build());
         ArgumentCaptor<String> infoCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).info(infoCapture.capture());
         final String logMessage = infoCapture.getValue();
-        assertEquals("{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}", logMessage);
+        jsonToMap(logMessage); // verify that this is valid JSON
+        assertEquals(expectedMessage, logMessage);
     }
 
     @Test
@@ -68,7 +80,14 @@ public class LoggerTest {
     }
 
     private Map<String,String> jsonToMap(String jsonString) {
-        return new Gson().fromJson(jsonString, new TypeToken<Map<String, String>>() {
-        }.getType());
+        return new Gson().fromJson(jsonString, new TypeToken<Map<String, String>>() {}.getType());
+    }
+
+    public final static Date date(String string) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(string);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

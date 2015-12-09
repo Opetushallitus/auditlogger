@@ -5,10 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 public class Audit {
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
+    final Gson gson = new Gson();
 
     /**
      * Create an Audit logger for service.
@@ -27,27 +33,23 @@ public class Audit {
     }
 
     void log(Map<String,String> message) {
-        StringBuilder b= new StringBuilder("{");
-        b.append("\"").append("timestamp").append("\"").append(":\"").append(message.get(CommonLogMessageFields.TIMESTAMP)).append("\"").append(",");
-        b.append("\"").append("serviceName").append("\"").append(":\"").append(serviceName).append("\"").append(",");
-        b.append("\"").append("applicationType").append("\"").append(":\"").append(applicationType).append("\"").append(",");
-        boolean firstEntry = true;
-        for(Map.Entry<String,String> e : message.entrySet()) {
-            if(e.getKey() == null ||e.getValue() == null || CommonLogMessageFields.TIMESTAMP.equals(e.getKey())) {
-                continue;
-            }
-            if(!firstEntry) {
-                b.append(",");
-            } else {
-                firstEntry = false;
-            }
-            b.append("\"").append(e.getKey()).append("\"").append(":\"").append(e.getValue()).append("\"");
+        JsonObject object = new JsonObject();
+        // Add these first to preserve a certain field order
+        object.add("timestamp", s(message.get("timestamp")));
+        object.add("serviceName", s(serviceName));
+        object.add("applicationType", s(applicationType));
+        for (Map.Entry<String, String> entry : message.entrySet()) {
+            object.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
         }
-        String logLine = b.append("}").toString();
+        String logLine = gson.toJson(object);
         log.info(logLine);
     }
 
     public void log(AbstractLogMessage logMessage) {
         log(logMessage.getMessageMapping());
+    }
+
+    private JsonElement s(String s) {
+        return new JsonPrimitive(s);
     }
 }
