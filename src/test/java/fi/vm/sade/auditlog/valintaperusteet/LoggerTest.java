@@ -57,8 +57,7 @@ public class LoggerTest {
         ArgumentCaptor<String> infoCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).info(infoCapture.capture());
         final String logMessage = infoCapture.getValue();
-        jsonToMap(logMessage); // verify that this is valid JSON
-        assertEquals(expectedMessage, logMessage);
+        assertEquals(jsonToMap(expectedMessage), jsonToMap(logMessage));
     }
 
     @Test
