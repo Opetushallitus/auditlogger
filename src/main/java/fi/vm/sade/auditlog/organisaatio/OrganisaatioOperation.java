@@ -1,0 +1,6 @@
+package fi.vm.sade.auditlog.organisaatio;
+
+public enum OrganisaatioOperation {
+    ORG_UPDATE, ORG_DELETE, ORG_CREATE, YHTEYSTIETO_UPDATE, YHTEYSTIETO_CREATE,
+    ORG_NIMI_CREATE, ORG_UPDATE_MANY, ORG_SUHDE_UPDATE, ORG_NIMI_UPDATE, ORG_NIMI_DELETE
+}
