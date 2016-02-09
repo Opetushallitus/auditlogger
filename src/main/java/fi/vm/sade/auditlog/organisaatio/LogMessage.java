@@ -6,7 +6,7 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 import java.util.Map;
 
 import static fi.vm.sade.auditlog.CommonLogMessageFields.OPERAATIO;
-//import static fi.vm.sade.auditlog.organisaatio.OrganisaatioMessageFields.HENKILOOIDLIST;
+import static fi.vm.sade.auditlog.organisaatio.OrganisaatioMessageFields.OIDLIST;
 
 public class LogMessage extends AbstractLogMessage {
     public LogMessage(Map<String, String> messageMapping) {
@@ -22,9 +22,9 @@ public class LogMessage extends AbstractLogMessage {
             return new LogMessage(mapping);
         }
 
-//        public LogMessageBuilder henkiloOidList(String henkiloOidList) {
-//            return safePut(HENKILOOIDLIST, henkiloOidList);
-//        }
+        public LogMessageBuilder henkiloOidList(String henkiloOidList) {
+            return safePut(OIDLIST, henkiloOidList);
+        }
 
         public LogMessageBuilder setOperaatio(OrganisaatioOperation operaatio) {
             return safePut(OPERAATIO, operaatio.name());
