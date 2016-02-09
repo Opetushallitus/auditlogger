@@ -22,8 +22,8 @@ public class LogMessage extends AbstractLogMessage {
             return new LogMessage(mapping);
         }
 
-        public LogMessageBuilder henkiloOidList(String henkiloOidList) {
-            return safePut(OIDLIST, henkiloOidList);
+        public LogMessageBuilder oidList(String oidList) {
+            return safePut(OIDLIST, oidList);
         }
 
         public LogMessageBuilder setOperaatio(OrganisaatioOperation operaatio) {
