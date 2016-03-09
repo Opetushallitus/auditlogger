@@ -33,23 +33,26 @@ public class Audit {
     }
 
     void log(Map<String,String> message) {
-        JsonObject object = new JsonObject();
+        JsonObject jsonMsg = new JsonObject();
         // Add these first to preserve a certain field order
-        object.add("timestamp", s(message.get("timestamp")));
-        object.add("serviceName", s(serviceName));
-        object.add("applicationType", s(applicationType));
+        addField(jsonMsg, "timestamp", message.get("timestamp"));
+        addField(jsonMsg, "serviceName", serviceName);
+        addField(jsonMsg, "applicationType", applicationType);
         for (Map.Entry<String, String> entry : message.entrySet()) {
-            object.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
+            addField(jsonMsg, entry.getKey(), entry.getValue());
         }
-        String logLine = gson.toJson(object);
+        String logLine = gson.toJson(jsonMsg);
         log.info(logLine);
+    }
+
+    private void addField(final JsonObject object, final String key, final String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("null value given for " + key);
+        }
+        object.add(key, new JsonPrimitive(value));
     }
 
     public void log(AbstractLogMessage logMessage) {
         log(logMessage.getMessageMapping());
-    }
-
-    private JsonElement s(String s) {
-        return new JsonPrimitive(s);
     }
 }

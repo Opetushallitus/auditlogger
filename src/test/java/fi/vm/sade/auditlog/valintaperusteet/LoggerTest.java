@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import fi.vm.sade.auditlog.AbstractLogMessage;
 import fi.vm.sade.auditlog.ApplicationType;
 import fi.vm.sade.auditlog.Audit;
 
@@ -76,6 +78,11 @@ public class LoggerTest {
         assertTrue(file.length() > 100);
         file.delete();
         assertFalse(file.exists());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void assertionTest() {
+        audit.log(new AbstractLogMessage(Collections.EMPTY_MAP) {});
     }
 
     private Map<String,String> jsonToMap(String jsonString) {
