@@ -5,16 +5,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 
 public class Audit {
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
-    final Gson gson = new Gson();
+    final Gson gson = new GsonBuilder().serializeNulls().create();
 
     /**
      * Create an Audit logger for service.
@@ -47,9 +44,10 @@ public class Audit {
 
     private void addField(final JsonObject object, final String key, final String value) {
         if (value == null) {
-            throw new IllegalArgumentException("null value given for " + key);
+            object.add(key, null);
+        } else {
+            object.add(key, new JsonPrimitive(value));
         }
-        object.add(key, new JsonPrimitive(value));
     }
 
     public void log(AbstractLogMessage logMessage) {

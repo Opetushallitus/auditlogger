@@ -11,8 +11,8 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
-import fi.vm.sade.auditlog.AbstractLogMessage;
 import fi.vm.sade.auditlog.ApplicationType;
 import fi.vm.sade.auditlog.Audit;
 
@@ -80,9 +79,19 @@ public class LoggerTest {
         assertFalse(file.exists());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void assertionTest() {
-        audit.log(new AbstractLogMessage(Collections.EMPTY_MAP) {});
+    @Test
+    public void nullValueTest() throws ParseException {
+        final LogMessage.LogMessageBuilder messageBuilder = builder().id(null).add("tila", null, TESTENUM.TILA2).message(null);
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
+                ".old_value\":\"TILA2\",\"id\":null,\"tila\":null,\"message\":null}");
+    }
+
+    @Test
+    public void nullValueTestDynamic() {
+        Map<String,String> map = new HashMap<>();
+        map.put("nullValue", null);
+        final LogMessage.LogMessageBuilder messageBuilder = builder().addAll(map);
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\"=\"test\",\"applicationType\"=\"opiskelija\",\"nullValue\":null}");
     }
 
     private Map<String,String> jsonToMap(String jsonString) {
