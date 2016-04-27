@@ -12,7 +12,7 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
 
     public SimpleLogMessageBuilder() {
         this.mapping = new HashMap<>();
-        timestamp(new Date().getTime());
+        timestamp(new Date());
     }
 
     protected String safeFormat(Date d) {
@@ -27,14 +27,14 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
     }
 
     protected T safePut(String key, String value) {
-        if (key != null && value != null) {
+        if (key != null) {
             this.mapping.put(key, value);
         }
         return (T) this;
     }
 
     protected T safePut(String key, Date value) {
-        if (key != null && value != null) {
+        if (key != null) {
             this.mapping.put(key, safeFormat(value));
         }
         return (T) this;
@@ -46,9 +46,10 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
 
     public T timestamp(Long timestamp) {
         if (timestamp == null) {
-            return (T) this;
+            return safePut(CommonLogMessageFields.TIMESTAMP, (String) null);
+        } else {
+            return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(new Date(timestamp)));
         }
-        return safePut(CommonLogMessageFields.TIMESTAMP, safeFormat(new Date(timestamp)));
     }
 
     public T id(String id) {
@@ -72,13 +73,12 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
     }
 
     public <V> T add(String key, V value) {
-        if (value == null) {
-            return (T) this;
-        }
         if (value instanceof Date) {
             safePut(key, safeFormat((Date) value));
-        } else {
+        } else if (value != null) {
             safePut(key, value.toString());
+        } else {
+            safePut(key, (String) null);
         }
         return (T) this;
     }
