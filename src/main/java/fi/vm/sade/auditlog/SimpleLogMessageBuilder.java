@@ -4,10 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 
 public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
-    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     protected final Map<String, String> mapping;
 
     public SimpleLogMessageBuilder() {
@@ -18,6 +19,7 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
     protected String safeFormat(Date d) {
         if (d != null) {
             try {
+                SDF.setTimeZone(TimeZone.getTimeZone("UTC"));
                 return SDF.format(d);
             } catch (Throwable t) {
                 t.printStackTrace();

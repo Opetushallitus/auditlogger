@@ -32,7 +32,6 @@ public class LoggerTest {
     }
     private Audit audit;
     private Logger loggerMock;
-    private final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     @Before
     public void initMock() {
@@ -43,17 +42,17 @@ public class LoggerTest {
     @Test
     public void testLogMessageFormat() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test message");
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
     }
 
     @Test
     public void testJsonEncoding() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test \" message");
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
     }
 
     private void verifyLogMessage(final LogMessage.LogMessageBuilder msg, final String expectedMessage) {
-        Date now = date("2015-12-01");
+        Date now = date("2015-12-01 15:30+02:00");
         audit.log(msg.timestamp(now).build());
         ArgumentCaptor<String> infoCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).info(infoCapture.capture());
@@ -82,7 +81,7 @@ public class LoggerTest {
     @Test
     public void nullValueTest() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id(null).add("tila", null, TESTENUM.TILA2).message(null);
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
                 ".old_value\":\"TILA2\",\"id\":null,\"tila\":null,\"message\":null}");
     }
 
@@ -91,7 +90,7 @@ public class LoggerTest {
         Map<String,String> map = new HashMap<>();
         map.put("nullValue", null);
         final LogMessage.LogMessageBuilder messageBuilder = builder().addAll(map);
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01 00:00:00.000\",\"serviceName\"=\"test\",\"applicationType\"=\"opiskelija\",\"nullValue\":null}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\"=\"test\",\"applicationType\"=\"opiskelija\",\"nullValue\":null}");
     }
 
     private Map<String,String> jsonToMap(String jsonString) {
@@ -100,7 +99,7 @@ public class LoggerTest {
 
     public final static Date date(String string) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(string);
+            return new SimpleDateFormat("yyyy-MM-dd HH:mmX").parse(string);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
