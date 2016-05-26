@@ -2,7 +2,6 @@ package fi.vm.sade.auditlog.tarjonta;
 
 import fi.vm.sade.auditlog.AbstractLogMessage;
 import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.Map;
 
@@ -34,8 +33,8 @@ public class LogMessage extends AbstractLogMessage {
             return safePut(TarjontaMessageFields.RESOURCE_OID, oid);
         }
 
-        public LogMessageBuilder setDelta(String deltaAsJson) {
-            return safePut(TarjontaMessageFields.DELTA, StringEscapeUtils.escapeJson(deltaAsJson));
+        public LogMessageBuilder setDelta(String delta) {
+            return safePut(TarjontaMessageFields.DELTA, delta);
         }
     }
 }
