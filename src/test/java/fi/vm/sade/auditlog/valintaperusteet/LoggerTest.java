@@ -42,13 +42,13 @@ public class LoggerTest {
     @Test
     public void testLogMessageFormat() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test message");
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
     }
 
     @Test
     public void testJsonEncoding() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test \" message");
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
     }
 
     private void verifyLogMessage(final LogMessage.LogMessageBuilder msg, final String expectedMessage) {
@@ -81,7 +81,7 @@ public class LoggerTest {
     @Test
     public void nullValueTest() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id(null).add("tila", null, TESTENUM.TILA2).message(null);
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
                 ".old_value\":\"TILA2\",\"id\":null,\"tila\":null,\"message\":null}");
     }
 
@@ -90,7 +90,7 @@ public class LoggerTest {
         Map<String,String> map = new HashMap<>();
         map.put("nullValue", null);
         final LogMessage.LogMessageBuilder messageBuilder = builder().addAll(map);
-        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T13:30:00.000Z\",\"serviceName\"=\"test\",\"applicationType\"=\"opiskelija\",\"nullValue\":null}");
+        verifyLogMessage(messageBuilder, "{\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\"=\"test\",\"applicationType\"=\"opiskelija\",\"nullValue\":null}");
     }
 
     private Map<String,String> jsonToMap(String jsonString) {

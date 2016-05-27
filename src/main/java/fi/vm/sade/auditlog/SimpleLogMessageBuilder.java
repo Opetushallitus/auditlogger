@@ -19,7 +19,7 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
     protected String safeFormat(Date d) {
         if (d != null) {
             try {
-                SDF.setTimeZone(TimeZone.getTimeZone("UTC"));
+                SDF.setTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));
                 return SDF.format(d);
             } catch (Throwable t) {
                 t.printStackTrace();
