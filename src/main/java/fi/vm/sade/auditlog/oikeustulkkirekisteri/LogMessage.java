@@ -6,8 +6,8 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 import java.util.Map;
 
 import static fi.vm.sade.auditlog.CommonLogMessageFields.OPERAATIO;
-import static fi.vm.sade.auditlog.oikeustulkkirekisteri.OikeustulkkiMessageFields.HENKILO_OID;
-import static fi.vm.sade.auditlog.oikeustulkkirekisteri.OikeustulkkiMessageFields.OIKEUSTULKKI_ID;
+import static fi.vm.sade.auditlog.oikeustulkkirekisteri.OikeustulkkiMessageFields.*;
+import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * User: tommiratamaa
@@ -30,6 +30,10 @@ public class LogMessage extends AbstractLogMessage {
 
         public LogMessageBuilder henkiloOid(String oid) {
             return safePut(HENKILO_OID, oid);
+        }
+
+        public LogMessageBuilder henkiloOidList(Iterable<String> oids) {
+            return safePut(HENKILO_OID_LIST, join(oids, ", "));
         }
 
         public LogMessageBuilder oikeustulkkiId(Long id) {
