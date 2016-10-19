@@ -16,20 +16,21 @@ public class LogMessage extends AbstractLogMessage {
         return new LogMessageBuilder();
     }
 
-    public static class LogMessageBuilder extends SimpleLogMessageBuilder<LogMessageBuilder>
-                                          public LogMessage build() {
-        return new LogMessage(mapping);
-    }
+    public static class LogMessageBuilder extends SimpleLogMessageBuilder<LogMessageBuilder> {
+        public LogMessage build() {
+            return new LogMessage(mapping);
+        }
 
-    public LogMessageBuilder setOperation(OTIOperation operation) {
-        return safePut(OPERAATIO, operation.name());
-    }
+        public LogMessageBuilder setOperation(OTIOperation operation) {
+            return safePut(OPERAATIO, operation.name());
+        }
 
-    public LogMessageBuilder setResource(OTIResource resource) {
-        return safePut(OTIMessageFields.RESOURCE, resource.name());
-    }
+        public LogMessageBuilder setResource(OTIResource resource) {
+            return safePut(OTIMessageFields.RESOURCE, resource.name());
+        }
 
-    public LogMessageBuilder setDelta(String delta) {
-        return safePut(OTIMessageFields.DELTA, delta);
+        public LogMessageBuilder setDelta(String delta) {
+            return safePut(OTIMessageFields.DELTA, delta);
+        }
     }
 }
