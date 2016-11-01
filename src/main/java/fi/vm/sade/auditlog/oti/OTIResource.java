@@ -1,6 +1,8 @@
 package fi.vm.sade.auditlog.oti;
 
 public enum OTIResource {
+    ACCREDITATION,
+    DIPLOMA,
     EXAM,
     EXAM_SESSION,
     PARTICIPANT,
