@@ -6,8 +6,7 @@ import fi.vm.sade.auditlog.SimpleLogMessageBuilder;
 import java.util.Map;
 
 import static fi.vm.sade.auditlog.CommonLogMessageFields.OPERAATIO;
-import static fi.vm.sade.auditlog.oppijanumerorekisteri.OppijanumerorekisteriMessageFields.OIDLIST;
-import static fi.vm.sade.auditlog.oppijanumerorekisteri.OppijanumerorekisteriMessageFields.USEROID;
+import static fi.vm.sade.auditlog.oppijanumerorekisteri.OppijanumerorekisteriMessageFields.*;
 
 public class LogMessage extends AbstractLogMessage {
     public LogMessage(Map<String, String> messageMapping) {
@@ -23,12 +22,24 @@ public class LogMessage extends AbstractLogMessage {
             return new LogMessage(mapping);
         }
 
-        public LogMessageBuilder oidList(String oidList) {
-            return safePut(OIDLIST, oidList);
+        public LogMessageBuilder kohdehenkiloOid(String oid) {
+            return safePut(KOHDEHENKILO_OID, oid);
         }
 
-        public LogMessageBuilder userOid(String oidList) {
-            return safePut(USEROID, oidList);
+        public LogMessageBuilder kohdeorganisaatioOid(String oid) {
+            return safePut(KOHDEORGANISAATIO_OID, oid);
+        }
+
+        public LogMessageBuilder lisatieto(String lisatieto) {
+            return safePut(LISATIETO, lisatieto);
+        }
+
+        public LogMessageBuilder muutettuUusi(String uusi) {
+            return safePut(MUUTETTU_UUSI, uusi);
+        }
+
+        public LogMessageBuilder muutettuVanha(String vanha) {
+            return safePut(MUUTETTU_VANHA, vanha);
         }
 
         public LogMessageBuilder setOperaatio(OppijanumerorekisteriOperation operaatio) {

@@ -1,5 +1,5 @@
 package fi.vm.sade.auditlog.oppijanumerorekisteri;
 
 public enum OppijanumerorekisteriOperation {
-    CHECK_HETU
+    CREATE_KOSKI_HENKILO
 }
