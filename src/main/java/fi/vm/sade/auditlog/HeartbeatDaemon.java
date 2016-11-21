@@ -15,6 +15,7 @@ public class HeartbeatDaemon implements Runnable {
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(newDaemonThreadFactory());
     private final CopyOnWriteArrayList<Audit> loggers = new CopyOnWriteArrayList<>();
+    private final String hostname = System.getProperty("HOSTNAME", "");
     private final Date bootTime = new Date();
     private HeartbeatDaemon() {
         scheduler.scheduleAtFixedRate(this,MINUTES_BETWEEN_HEARTBEATS,MINUTES_BETWEEN_HEARTBEATS,MINUTES);
@@ -28,6 +29,10 @@ public class HeartbeatDaemon implements Runnable {
         };
         Runtime.getRuntime().addShutdownHook(new Thread(onShutdown));
 
+    }
+
+    public String getHostname() {
+        return hostname;
     }
 
     public static synchronized HeartbeatDaemon getInstance() {

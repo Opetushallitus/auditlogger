@@ -45,6 +45,7 @@ public class Audit {
         // Add these first to preserve a certain field order
         addField(jsonMsg, "logSeq", currentLineNumber.toString());
         addField(jsonMsg, "bootTime", new SimpleLogMessageBuilder().safeFormat(heartbeat.getBootTime()));
+        addField(jsonMsg, "hostname", heartbeat.getHostname());
         addField(jsonMsg, "timestamp", message.get("timestamp"));
         addField(jsonMsg, "serviceName", serviceName);
         addField(jsonMsg, "applicationType", applicationType);
