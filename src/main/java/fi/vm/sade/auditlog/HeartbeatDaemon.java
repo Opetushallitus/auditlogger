@@ -3,6 +3,7 @@ package fi.vm.sade.auditlog;
 import fi.vm.sade.auditlog.valintaperusteet.LogMessage;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,8 +56,10 @@ public class HeartbeatDaemon implements Runnable {
     }
     @Override
     public void run() {
-        for(Audit audit: loggers) {
-            log(audit, "Alive!");
+        Iterator<Audit> iterator = loggers.iterator();
+        if(iterator.hasNext()) {
+            Audit first = iterator.next();
+            log(first, "Alive!");
         }
     }
 
