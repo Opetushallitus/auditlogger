@@ -11,7 +11,7 @@ import com.google.gson.*;
 
 public class Audit {
     private final HeartbeatDaemon heartbeat;
-    private final AtomicInteger logSeq = new AtomicInteger(0);
+    private static final AtomicInteger logSeq = new AtomicInteger(0);
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
