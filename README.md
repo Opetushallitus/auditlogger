@@ -106,10 +106,10 @@ src/main/resources/logback.xml:
                 <maxFileSize>5MB</maxFileSize>
             </triggeringPolicy>
             <encoder>
-                <pattern>%date AUDIT %msg%n</pattern>
+                <pattern>%msg%n</pattern>
             </encoder>
         </appender>
-        <logger name="fi.vm.sade.auditlog.Audit" level="INFO">
+        <logger name="fi.vm.sade.auditlog.Audit" level="INFO" additivity="false">
             <appender-ref ref="ROLLING" />
         </logger>
     </configuration>
