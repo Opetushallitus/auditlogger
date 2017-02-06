@@ -1,22 +1,38 @@
 package fi.vm.sade.auditlog;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.google.gson.*;
 
 public class Audit {
+
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+
+    static {
+        SDF.setTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));
+    }
+
+    private final Clock clock;
+    private final Date bootTime;
+    private final String hostname;
     private final HeartbeatDaemon heartbeat;
-    private final AtomicInteger logSeq = new AtomicInteger(0);
+    private final AtomicInteger logSeq;
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
-    final Gson gson = new GsonBuilder().serializeNulls().create();
-    public static int MAX_FIELD_LENGTH = 32766;
+    private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     /**
      * Create an Audit logger for service.
@@ -29,46 +45,74 @@ public class Audit {
     }
 
     public Audit(Logger log, String serviceName, ApplicationType applicationType) {
-        this(log, serviceName, applicationType, HeartbeatDaemon.getInstance());
+        this(log, serviceName, applicationType,
+                System.getProperty("HOSTNAME", ""),
+                HeartbeatDaemon.getInstance(),
+                new AtomicInteger(0),
+                new Clock() {
+                    @Override
+                    public Date wallClockTime() {
+                        return new Date();
+                    }
+                });
     }
 
-    public Audit(Logger log, String serviceName, ApplicationType applicationType, HeartbeatDaemon heartbeat) {
+    public Audit(Logger log, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, AtomicInteger logSeq, Clock clock) {
+        this.clock = clock;
+        this.bootTime = clock.wallClockTime();
+        this.hostname = hostname;
         this.log = log;
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
         this.heartbeat = heartbeat;
+        this.logSeq = logSeq;
         heartbeat.register(this);
     }
 
-    void log(Map<String,String> message) {
-        final Integer currentLineNumber = logSeq.getAndIncrement();
-        JsonObject jsonMsg = new JsonObject();
-        // Add these first to preserve a certain field order
-        addField(jsonMsg, "logSeq", currentLineNumber.toString());
-        addField(jsonMsg, "bootTime", new SimpleLogMessageBuilder().safeFormat(heartbeat.getBootTime()));
-        addField(jsonMsg, "hostname", heartbeat.getHostname());
-        addField(jsonMsg, "timestamp", message.get("timestamp"));
-        addField(jsonMsg, "serviceName", serviceName);
-        addField(jsonMsg, "applicationType", applicationType);
-        for (Map.Entry<String, String> entry : message.entrySet()) {
-            addField(jsonMsg, entry.getKey().replace("\\.", "_"), entry.getValue());
+    private JsonObject commonFields() {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("logSeq", logSeq.getAndIncrement());
+        json.addProperty("bootTime", SDF.format(this.bootTime));
+        json.addProperty("hostname", this.hostname);
+
+        synchronized (SDF) {
+            json.addProperty("timestamp", SDF.format(clock.wallClockTime()));
         }
-        String logLine = gson.toJson(jsonMsg);
-        log.info(logLine);
+
+        json.addProperty("serviceName", serviceName);
+        json.addProperty("applicationType", applicationType);
+
+        return json;
     }
 
-    private void addField(final JsonObject object, final String key, final String value) {
-        if (value == null) {
-            object.add(key, null);
-        } else {
-            if (value.length() > MAX_FIELD_LENGTH) {
-                log.error("Field {} length {} was greater than suggested max length of {}", key, value.length(), MAX_FIELD_LENGTH);
-            }
-            object.add(key, new JsonPrimitive(value));
-        }
+    public void logStarted() {
+        JsonObject json = commonFields();
+        json.addProperty("message", "started");
+        log.info(gson.toJson(json));
     }
 
-    public void log(AbstractLogMessage logMessage) {
-        log(logMessage.getMessageMapping());
+    public void logHeartbeat() {
+        JsonObject json = commonFields();
+        json.addProperty("message", "alive");
+        log.info(gson.toJson(json));
+    }
+
+    public void logStopped() {
+        JsonObject json = commonFields();
+        json.addProperty("message", "stopped");
+        log.info(gson.toJson(json));
+    }
+
+    public void log(User user,
+                    Operation operation,
+                    Target target,
+                    Changes changes) {
+        JsonObject json = commonFields();
+        json.add("user", user.asJson());
+        json.addProperty("operation", operation.name());
+        json.add("target", target.asJson());
+        json.add("changes", changes.asJson());
+        log.info(gson.toJson(json));
     }
 }
