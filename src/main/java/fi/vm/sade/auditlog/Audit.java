@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Audit {
 
+    private static final int VERSION = 1;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     static {
@@ -72,6 +73,7 @@ public class Audit {
     private JsonObject commonFields() {
         JsonObject json = new JsonObject();
 
+        json.addProperty("version", VERSION);
         json.addProperty("logSeq", logSeq.getAndIncrement());
         json.addProperty("bootTime", SDF.format(this.bootTime));
         json.addProperty("hostname", this.hostname);
