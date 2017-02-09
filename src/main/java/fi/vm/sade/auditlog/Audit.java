@@ -42,11 +42,10 @@ public class Audit {
      * @param applicationType type of the service application e.g. OPISKELIJA
      */
     public Audit(String serviceName, ApplicationType applicationType) {
-        this(LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName()), serviceName, applicationType);
-    }
-
-    public Audit(Logger log, String serviceName, ApplicationType applicationType) {
-        this(log, serviceName, applicationType,
+        this(
+                LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName()),
+                serviceName,
+                applicationType,
                 System.getProperty("HOSTNAME", ""),
                 HeartbeatDaemon.getInstance(),
                 new AtomicInteger(0),
@@ -55,7 +54,8 @@ public class Audit {
                     public Date wallClockTime() {
                         return new Date();
                     }
-                });
+                }
+        );
     }
 
     public Audit(Logger log, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, AtomicInteger logSeq, Clock clock) {
