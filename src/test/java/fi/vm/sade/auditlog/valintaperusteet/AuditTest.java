@@ -61,7 +61,7 @@ public class AuditTest {
         heartbeatDaemon = mock(HeartbeatDaemon.class);
         clock = mock(Clock.class);
         when(clock.wallClockTime()).thenReturn(date("2015-12-01 00:30+02:00"));
-        audit = new Audit(loggerMock, "test", ApplicationType.OPISKELIJA, hostname, heartbeatDaemon, new AtomicInteger(0), clock);
+        audit = new Audit(loggerMock, "test", ApplicationType.OPISKELIJA, hostname, heartbeatDaemon, clock);
     }
 
     @Test

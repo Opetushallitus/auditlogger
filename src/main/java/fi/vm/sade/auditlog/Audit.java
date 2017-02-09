@@ -29,7 +29,7 @@ public class Audit {
     private final Date bootTime;
     private final String hostname;
     private final HeartbeatDaemon heartbeat;
-    private final AtomicInteger logSeq;
+    private int logSeq;
     private final Logger log;
     private final String serviceName;
     private final String applicationType;
@@ -48,7 +48,6 @@ public class Audit {
                 applicationType,
                 System.getProperty("HOSTNAME", ""),
                 HeartbeatDaemon.getInstance(),
-                new AtomicInteger(0),
                 new Clock() {
                     @Override
                     public Date wallClockTime() {
@@ -58,7 +57,7 @@ public class Audit {
         );
     }
 
-    public Audit(Logger log, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, AtomicInteger logSeq, Clock clock) {
+    public Audit(Logger log, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, Clock clock) {
         this.clock = clock;
         this.bootTime = clock.wallClockTime();
         this.hostname = hostname;
@@ -66,7 +65,7 @@ public class Audit {
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
         this.heartbeat = heartbeat;
-        this.logSeq = logSeq;
+        this.logSeq = 0;
         heartbeat.register(this);
     }
 
@@ -74,11 +73,12 @@ public class Audit {
         JsonObject json = new JsonObject();
 
         json.addProperty("version", VERSION);
-        json.addProperty("logSeq", logSeq.getAndIncrement());
-        json.addProperty("bootTime", SDF.format(this.bootTime));
-        json.addProperty("hostname", this.hostname);
 
         synchronized (SDF) {
+            json.addProperty("logSeq", logSeq);
+            logSeq += 1;
+            json.addProperty("bootTime", SDF.format(this.bootTime));
+            json.addProperty("hostname", this.hostname);
             json.addProperty("timestamp", SDF.format(clock.wallClockTime()));
         }
 
