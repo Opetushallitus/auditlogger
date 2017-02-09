@@ -20,17 +20,21 @@ public class HeartbeatDaemon implements Runnable {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                scheduler.shutdown();
-                try {
-                    scheduler.awaitTermination(1, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                }
-                for (Audit logger : loggers) {
-                    logger.logStopped();
-                }
+                shutdown();
             }
         }));
         scheduler.scheduleAtFixedRate(this, MINUTES_BETWEEN_HEARTBEATS, MINUTES_BETWEEN_HEARTBEATS, MINUTES);
+    }
+
+    public void shutdown() {
+        scheduler.shutdown();
+        try {
+            scheduler.awaitTermination(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+        }
+        for (Audit logger : loggers) {
+            logger.logStopped();
+        }
     }
 
     public static synchronized HeartbeatDaemon getInstance() {

@@ -80,6 +80,18 @@ public class AuditTest {
     }
 
     @Test
+    public void heartbeat() {
+        Audit mockAudit = mock(Audit.class);
+        HeartbeatDaemon heartbeat = HeartbeatDaemon.getInstance();
+        heartbeat.register(mockAudit);
+        heartbeat.run();
+        heartbeat.shutdown();
+        verify(mockAudit, times(1)).logStarted();
+        verify(mockAudit, times(1)).logHeartbeat();
+        verify(mockAudit, times(1)).logStopped();
+    }
+
+    @Test
     public void sequence() {
         audit.log(user, op, new Target(), new Changes());
         audit.log(user, op, new Target(), new Changes());
