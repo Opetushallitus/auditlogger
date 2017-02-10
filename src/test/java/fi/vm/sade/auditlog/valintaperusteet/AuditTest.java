@@ -80,7 +80,7 @@ public class AuditTest {
             }
         };
         Audit audit = new Audit(logger, "TEST", ApplicationType.VIRKAILIJA, hostname, heartbeatDaemon, clock);
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
 
         assertTrue(file.exists());
         assertTrue(file.length() > 100);
@@ -101,8 +101,8 @@ public class AuditTest {
 
     @Test
     public void sequence() {
-        audit.log(user, op, new Target(), new Changes());
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(2)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -112,7 +112,7 @@ public class AuditTest {
     @Test
     public void timestamp() {
         when(clock.wallClockTime()).thenReturn(date("2015-12-01 15:30+02:00"));
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -121,7 +121,7 @@ public class AuditTest {
 
     @Test
     public void bootTime() {
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -130,7 +130,7 @@ public class AuditTest {
 
     @Test
     public void operation() {
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -139,7 +139,7 @@ public class AuditTest {
 
     @Test
     public void user() {
-        audit.log(user, op, new Target(), new Changes());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -152,7 +152,7 @@ public class AuditTest {
 
     @Test
     public void nullValue() {
-        audit.log(user, op, new Target(), new Changes.Builder().added("kenttä", null).build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", null).build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -162,7 +162,7 @@ public class AuditTest {
 
     @Test
     public void withChange() throws UnknownHostException {
-        audit.log(user, op, new Target(), new Changes.Builder().updated("kenttä", "vanhaArvo", "uusiArvo").build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().updated("kenttä", "vanhaArvo", "uusiArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -173,7 +173,7 @@ public class AuditTest {
 
     @Test
     public void withAdded() throws UnknownHostException {
-        audit.log(user, op, new Target(), new Changes.Builder().added("kenttä", "uusiArvo").build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", "uusiArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
@@ -184,7 +184,7 @@ public class AuditTest {
 
     @Test
     public void withRemoved() throws UnknownHostException {
-        audit.log(user, op, new Target(), new Changes.Builder().removed("kenttä", "vanhaArvo").build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);

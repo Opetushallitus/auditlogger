@@ -4,8 +4,10 @@ import com.google.gson.JsonObject;
 
 import java.util.Map;
 
-public class Changes {
+public final class Changes {
     private JsonObject json = new JsonObject();
+
+    private Changes() { }
 
     public JsonObject asJson() {
         return this.json;

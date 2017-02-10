@@ -5,8 +5,10 @@ import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Target {
+public final class Target {
     private JsonObject json = new JsonObject();
+
+    private Target() { }
 
     public JsonObject asJson() {
         return this.json;
