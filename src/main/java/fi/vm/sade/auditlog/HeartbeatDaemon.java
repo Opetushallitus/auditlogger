@@ -1,6 +1,5 @@
 package fi.vm.sade.auditlog;
 
-
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

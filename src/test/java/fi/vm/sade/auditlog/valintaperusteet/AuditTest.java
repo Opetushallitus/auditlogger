@@ -7,6 +7,7 @@ import fi.vm.sade.auditlog.Audit;
 import fi.vm.sade.auditlog.Changes;
 import fi.vm.sade.auditlog.Clock;
 import fi.vm.sade.auditlog.HeartbeatDaemon;
+import fi.vm.sade.auditlog.Logger;
 import fi.vm.sade.auditlog.Operation;
 import fi.vm.sade.auditlog.Target;
 import fi.vm.sade.auditlog.User;
@@ -15,7 +16,7 @@ import org.ietf.jgss.Oid;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -71,7 +72,14 @@ public class AuditTest {
             file.delete();
         }
 
-        Audit audit = new Audit("TEST", ApplicationType.VIRKAILIJA);
+        final org.slf4j.Logger logbackLogger = LoggerFactory.getLogger(Audit.class);
+        Logger logger = new Logger() {
+            @Override
+            public void log(String msg) {
+                logbackLogger.info(msg);
+            }
+        };
+        Audit audit = new Audit(logger, "TEST", ApplicationType.VIRKAILIJA, hostname, heartbeatDaemon, clock);
         audit.log(user, op, new Target(), new Changes());
 
         assertTrue(file.exists());
@@ -96,7 +104,7 @@ public class AuditTest {
         audit.log(user, op, new Target(), new Changes());
         audit.log(user, op, new Target(), new Changes());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(2)).info(msgCapture.capture());
+        verify(loggerMock, times(2)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         assertEquals(1, r.get("logSeq").getAsInt());
     }
@@ -106,7 +114,7 @@ public class AuditTest {
         when(clock.wallClockTime()).thenReturn(date("2015-12-01 15:30+02:00"));
         audit.log(user, op, new Target(), new Changes());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         assertEquals("2015-12-01T15:30:00.000+02", r.get("timestamp").getAsString());
     }
@@ -115,7 +123,7 @@ public class AuditTest {
     public void bootTime() {
         audit.log(user, op, new Target(), new Changes());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         assertEquals("2015-12-01T00:30:00.000+02", r.get("bootTime").getAsString());
     }
@@ -133,7 +141,7 @@ public class AuditTest {
     public void user() {
         audit.log(user, op, new Target(), new Changes());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject user = r.getAsJsonObject("user");
         assertEquals("1.1.1.1.1.1.1", user.get("oid").getAsString());
@@ -146,7 +154,7 @@ public class AuditTest {
     public void nullValue() {
         audit.log(user, op, new Target(), new Changes.Builder().added("kenttä", null).build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
         assertTrue(changes.getAsJsonObject("kenttä").get("newValue").isJsonNull());
@@ -156,7 +164,7 @@ public class AuditTest {
     public void withChange() throws UnknownHostException {
         audit.log(user, op, new Target(), new Changes.Builder().updated("kenttä", "vanhaArvo", "uusiArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
         assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
@@ -167,7 +175,7 @@ public class AuditTest {
     public void withAdded() throws UnknownHostException {
         audit.log(user, op, new Target(), new Changes.Builder().added("kenttä", "uusiArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
         assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
@@ -178,7 +186,7 @@ public class AuditTest {
     public void withRemoved() throws UnknownHostException {
         audit.log(user, op, new Target(), new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
         assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
@@ -191,7 +199,7 @@ public class AuditTest {
                 new Target.Builder().setField("henkilö", "person-oid").setField("hakemus", "hakemus-oid").build(),
                 new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         ArgumentCaptor<String> msgCapture = ArgumentCaptor.forClass(String.class);
-        verify(loggerMock, times(1)).info(msgCapture.capture());
+        verify(loggerMock, times(1)).log(msgCapture.capture());
         JsonObject r = gson.fromJson(msgCapture.getValue(), JsonObject.class);
         JsonObject target = r.getAsJsonObject("target");
         assertEquals("person-oid", target.getAsJsonPrimitive("henkilö").getAsString());

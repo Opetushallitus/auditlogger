@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,7 +28,7 @@ public class Audit {
     private final String hostname;
     private final HeartbeatDaemon heartbeat;
     private int logSeq;
-    private final Logger log;
+    private final Logger logger;
     private final String serviceName;
     private final String applicationType;
     private final Gson gson = new GsonBuilder().serializeNulls().create();
@@ -41,9 +39,9 @@ public class Audit {
      * @param serviceName name of the service e.g. omatsivut
      * @param applicationType type of the service application e.g. OPISKELIJA
      */
-    public Audit(String serviceName, ApplicationType applicationType) {
+    public Audit(Logger logger, String serviceName, ApplicationType applicationType) {
         this(
-                LoggerFactory.getLogger(fi.vm.sade.auditlog.Audit.class.getName()),
+                logger,
                 serviceName,
                 applicationType,
                 System.getProperty("HOSTNAME", ""),
@@ -57,11 +55,11 @@ public class Audit {
         );
     }
 
-    public Audit(Logger log, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, Clock clock) {
+    public Audit(Logger logger, String serviceName, ApplicationType applicationType, String hostname, HeartbeatDaemon heartbeat, Clock clock) {
         this.clock = clock;
         this.bootTime = clock.wallClockTime();
         this.hostname = hostname;
-        this.log = log;
+        this.logger = logger;
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
         this.heartbeat = heartbeat;
@@ -91,19 +89,19 @@ public class Audit {
     public void logStarted() {
         JsonObject json = commonFields();
         json.addProperty("message", "started");
-        log.info(gson.toJson(json));
+        logger.log(gson.toJson(json));
     }
 
     public void logHeartbeat() {
         JsonObject json = commonFields();
         json.addProperty("message", "alive");
-        log.info(gson.toJson(json));
+        logger.log(gson.toJson(json));
     }
 
     public void logStopped() {
         JsonObject json = commonFields();
         json.addProperty("message", "stopped");
-        log.info(gson.toJson(json));
+        logger.log(gson.toJson(json));
     }
 
     public void log(User user,
@@ -115,6 +113,6 @@ public class Audit {
         json.addProperty("operation", operation.name());
         json.add("target", target.asJson());
         json.add("changes", changes.asJson());
-        log.info(gson.toJson(json));
+        logger.log(gson.toJson(json));
     }
 }
