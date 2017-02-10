@@ -27,7 +27,7 @@ public class Audit {
     private final Date bootTime;
     private final String hostname;
     private final HeartbeatDaemon heartbeat;
-    private int logSeq;
+    private final AtomicInteger logSeq;
     private final Logger logger;
     private final String serviceName;
     private final String applicationType;
@@ -63,7 +63,7 @@ public class Audit {
         this.serviceName = serviceName;
         this.applicationType = applicationType.toString().toLowerCase();
         this.heartbeat = heartbeat;
-        this.logSeq = 0;
+        this.logSeq = new AtomicInteger(0);
         heartbeat.register(this);
     }
 
@@ -71,10 +71,9 @@ public class Audit {
         JsonObject json = new JsonObject();
 
         json.addProperty("version", VERSION);
+        json.addProperty("logSeq", logSeq.getAndIncrement());
 
         synchronized (SDF) {
-            json.addProperty("logSeq", logSeq);
-            logSeq += 1;
             json.addProperty("bootTime", SDF.format(this.bootTime));
             json.addProperty("hostname", this.hostname);
             json.addProperty("timestamp", SDF.format(clock.wallClockTime()));
