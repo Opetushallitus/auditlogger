@@ -14,17 +14,16 @@ import fi.vm.sade.auditlog.User;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -63,28 +62,6 @@ public class AuditTest {
         clock = mock(Clock.class);
         when(clock.wallClockTime()).thenReturn(date("2015-12-01 00:30+02:00"));
         audit = new Audit(loggerMock, "test", ApplicationType.OPISKELIJA, hostname, heartbeatDaemon, clock);
-    }
-
-    @Test
-    public void write() {
-        File file = new File("auditlog_test.log");
-        if (file.exists()) {
-            file.delete();
-        }
-
-        final org.slf4j.Logger logbackLogger = LoggerFactory.getLogger(Audit.class);
-        Logger logger = new Logger() {
-            @Override
-            public void log(String msg) {
-                logbackLogger.info(msg);
-            }
-        };
-        Audit audit = new Audit(logger, "TEST", ApplicationType.VIRKAILIJA, hostname, heartbeatDaemon, clock);
-        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
-
-        assertTrue(file.exists());
-        assertTrue(file.length() > 100);
-        file.delete();
     }
 
     @Test
