@@ -45,6 +45,8 @@ public class AuditTest {
     @Mock private Clock clock;
     @Mock private Operation op;
     @Captor private ArgumentCaptor<String> msgCaptor;
+
+    private final Date bootTime = new Date();
     private final String hostname = "hostname";
     private final User user = new User(
             new Oid("1.1.1.1.1.1.1"),
@@ -56,7 +58,7 @@ public class AuditTest {
 
     @Before
     public void initMock() {
-        when(clock.wallClockTime()).thenReturn(date("2015-12-01 00:30+02:00"));
+        when(clock.wallClockTime()).thenReturn(bootTime);
         audit = new Audit(logger, "test", ApplicationType.OPISKELIJA, hostname, heartbeatDaemon, clock);
     }
 
@@ -83,11 +85,12 @@ public class AuditTest {
 
     @Test
     public void timestamp() {
-        when(clock.wallClockTime()).thenReturn(date("2015-12-01 15:30+02:00"));
+        Date now = new Date();
+        when(clock.wallClockTime()).thenReturn(now);
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals("2015-12-01T15:30:00.000+02", r.get("timestamp").getAsString());
+        assertEquals(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX").format(now), r.get("timestamp").getAsString());
     }
 
     @Test
@@ -95,7 +98,7 @@ public class AuditTest {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals("2015-12-01T00:30:00.000+02", r.get("bootTime").getAsString());
+        assertEquals(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX").format(bootTime), r.get("bootTime").getAsString());
     }
 
     @Test
@@ -168,13 +171,5 @@ public class AuditTest {
         JsonObject target = r.getAsJsonObject("target");
         assertEquals("person-oid", target.getAsJsonPrimitive("henkilö").getAsString());
         assertEquals("hakemus-oid", target.getAsJsonPrimitive("hakemus").getAsString());
-    }
-
-    public final static Date date(String string) {
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mmX").parse(string);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
