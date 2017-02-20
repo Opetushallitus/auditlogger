@@ -11,6 +11,10 @@ public class User {
     private final String session;
     private final String userAgent;
 
+    public User(InetAddress ip, String session, String userAgent) {
+        this(null, ip, session, userAgent);
+    }
+    
     public User(Oid oid, InetAddress ip, String session, String userAgent) {
         this.oid = oid;
         this.ip = ip;
@@ -20,7 +24,9 @@ public class User {
 
     public JsonObject asJson() {
         JsonObject o = new JsonObject();
-        o.addProperty("oid", oid.toString());
+        if (oid != null) {
+            o.addProperty("oid", oid.toString());
+        }
         o.addProperty("ip", ip.getHostAddress());
         o.addProperty("session", session);
         o.addProperty("userAgent", userAgent);
