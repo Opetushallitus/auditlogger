@@ -38,6 +38,10 @@ public class LogMessage extends AbstractLogMessage {
             return safePut(HAKUKOHDERYHMAOID, hakukohderyhmaOid);
         }
 
+        public LogMessageBuilder sessionId(String sessionId) {
+            return safePut("user_sessionId", sessionId);
+        }
+
         public LogMessageBuilder setOperaatio(HakuOperation operaatio) {
             return safePut(OPERAATIO, operaatio.name());
         }
