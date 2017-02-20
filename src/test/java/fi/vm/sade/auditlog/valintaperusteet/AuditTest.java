@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static fi.vm.sade.auditlog.ApplicationType.OPPIJA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +60,7 @@ public class AuditTest {
     @Before
     public void initMock() {
         when(clock.wallClockTime()).thenReturn(bootTime);
-        audit = new Audit(logger, "test", ApplicationType.OPISKELIJA, hostname, heartbeatDaemon, clock);
+        audit = new Audit(logger, "test", OPPIJA, hostname, heartbeatDaemon, clock);
     }
 
     @Test
