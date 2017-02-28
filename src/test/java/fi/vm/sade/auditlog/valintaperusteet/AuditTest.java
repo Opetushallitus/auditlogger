@@ -173,4 +173,20 @@ public class AuditTest {
         assertEquals("person-oid", target.getAsJsonPrimitive("henkilö").getAsString());
         assertEquals("hakemus-oid", target.getAsJsonPrimitive("hakemus").getAsString());
     }
+
+    @Test
+    public void logType() throws UnknownHostException {
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals("log", r.get("type").getAsString());
+    }
+
+    @Test
+    public void aliveType() throws UnknownHostException {
+        audit.logHeartbeat();
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals("alive", r.get("type").getAsString());
+    }
 }

@@ -18,6 +18,8 @@ public class Audit {
 
     private static final int VERSION = 1;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    public static final String TYPE_ALIVE = "alive";
+    private static final String TYPE_LOG = "log";
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));
@@ -67,11 +69,12 @@ public class Audit {
         heartbeat.register(this);
     }
 
-    private JsonObject commonFields() {
+    private JsonObject commonFields(String type) {
         JsonObject json = new JsonObject();
 
         json.addProperty("version", VERSION);
         json.addProperty("logSeq", logSeq.getAndIncrement());
+        json.addProperty("type", type);
 
         synchronized (SDF) {
             json.addProperty("bootTime", SDF.format(this.bootTime));
@@ -86,19 +89,19 @@ public class Audit {
     }
 
     public void logStarted() {
-        JsonObject json = commonFields();
+        JsonObject json = commonFields(TYPE_ALIVE);
         json.addProperty("message", "started");
         logger.log(gson.toJson(json));
     }
 
     public void logHeartbeat() {
-        JsonObject json = commonFields();
+        JsonObject json = commonFields(TYPE_ALIVE);
         json.addProperty("message", "alive");
         logger.log(gson.toJson(json));
     }
 
     public void logStopped() {
-        JsonObject json = commonFields();
+        JsonObject json = commonFields(TYPE_ALIVE);
         json.addProperty("message", "stopped");
         logger.log(gson.toJson(json));
     }
@@ -107,7 +110,7 @@ public class Audit {
                     Operation operation,
                     Target target,
                     Changes changes) {
-        JsonObject json = commonFields();
+        JsonObject json = commonFields(TYPE_LOG);
         json.add("user", user.asJson());
         json.addProperty("operation", operation.name());
         json.add("target", target.asJson());
