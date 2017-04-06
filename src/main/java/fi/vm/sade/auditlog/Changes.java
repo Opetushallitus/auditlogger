@@ -2,8 +2,6 @@ package fi.vm.sade.auditlog;
 
 import com.google.gson.JsonObject;
 
-import java.util.Map;
-
 public final class Changes {
     private JsonObject json = new JsonObject();
 
@@ -50,13 +48,17 @@ public final class Changes {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            if (!oldValue.equals(newValue)) {
+            if (hasChange(oldValue, newValue)) {
                 JsonObject o = new JsonObject();
                 o.addProperty("oldValue", oldValue);
                 o.addProperty("newValue", newValue);
                 changes.json.add(field, o);
             }
             return this;
+        }
+
+        private boolean hasChange(String oldValue, String newValue) {
+            return null == oldValue ? null != newValue : !oldValue.equals(newValue);
         }
     }
 }
