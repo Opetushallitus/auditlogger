@@ -32,6 +32,16 @@ public class LogMessage extends AbstractLogMessage {
             return safePut(RELEASE_ID, releaseId);
         }
 
+        public LogMessageBuilder notificationId(String notificationId){
+            return safePut(NOTIFICATION_ID, notificationId);
+        }
+
+        public LogMessageBuilder eventId(String eventId){
+            return safePut(EVENT_ID, eventId);
+        }
+
+        public LogMessageBuilder emailEventType(String eventType) {return safePut(EMAIL_EVENT_TYPE, eventType);}
+
         public LogMessageBuilder setOperaatio(VirkailijanTyopoytaOperation operaatio) {
             return safePut(OPERAATIO, operaatio.name());
         }

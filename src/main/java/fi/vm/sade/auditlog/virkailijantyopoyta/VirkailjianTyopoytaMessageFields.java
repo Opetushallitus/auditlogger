@@ -1,7 +1,10 @@
 package fi.vm.sade.auditlog.virkailijantyopoyta;
 
 
-public class VirkailjianTyopoytaMessageFields {
-    public static final String VIRKAILIJA_OID = "virkailijaOid";
-    public static final String RELEASE_ID = "releaseId";
+class VirkailjianTyopoytaMessageFields {
+    static final String VIRKAILIJA_OID = "virkailijaOid";
+    static final String RELEASE_ID = "releaseId";
+    static final String NOTIFICATION_ID = "notificationId";
+    static final String EVENT_ID = "eventId";
+    static final String EMAIL_EVENT_TYPE = "emailEventType";
 }
