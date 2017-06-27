@@ -50,7 +50,7 @@ public class Audit {
         addField(jsonMsg, "serviceName", serviceName);
         addField(jsonMsg, "applicationType", applicationType);
         for (Map.Entry<String, String> entry : message.entrySet()) {
-            addField(jsonMsg, entry.getKey(), entry.getValue());
+            addField(jsonMsg, entry.getKey().replace("\\.", "_"), entry.getValue());
         }
         String logLine = gson.toJson(jsonMsg);
         log.info(logLine);
