@@ -68,6 +68,11 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
         return safePut(CommonLogMessageFields.CHANGES, message);
     }
 
+    /**
+     * @deprecated Do not use, we don't want random key-value pairs in the logs. Instead use the message method if you
+     * want to add almost free form data to the log.
+     */
+    @Deprecated
     public T addAll(Map<String, String> mapping) {
         if (mapping != null) {
             this.mapping.putAll(mapping);
