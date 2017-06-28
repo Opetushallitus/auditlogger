@@ -1,5 +1,7 @@
 package fi.vm.sade.auditlog;
 
+import com.google.gson.Gson;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -62,6 +64,15 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
         return safePut(CommonLogMessageFields.MESSAGE, message);
     }
 
+    public T changes(String message) {
+        return safePut(CommonLogMessageFields.CHANGES, message);
+    }
+
+    /**
+     * @deprecated Do not use, we don't want random key-value pairs in the logs. Instead use the message method if you
+     * want to add almost free form data to the log.
+     */
+    @Deprecated
     public T addAll(Map<String, String> mapping) {
         if (mapping != null) {
             this.mapping.putAll(mapping);
@@ -83,5 +94,25 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
             safePut(key, (String) null);
         }
         return (T) this;
+    }
+
+    /**
+     * Adds a free form object to message field. Uses Gson to convert map into a string representation.
+     * @param object
+     */
+    public T messageJson(Map<String, ? extends Object> object) {
+        Gson gson = new Gson();
+        String jsonStr = gson.toJson(object);
+        return this.message(jsonStr);
+    }
+
+    /**
+     * Adds a free form object to changes field. Uses Gson to convert map into a string representation.
+     * @param object
+     */
+    public T changesJson(Map<String, ? extends Object> object) {
+        Gson gson = new Gson();
+        String jsonStr = gson.toJson(object);
+        return this.changes(jsonStr);
     }
 }

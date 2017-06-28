@@ -45,13 +45,13 @@ public class LoggerTest {
     @Test
     public void testLogMessageFormat() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test message");
-        verifyLogMessage(messageBuilder, "{\"logSeq\":0,\"bootTime\":null,\"hostname\":null,\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
+        verifyLogMessage(messageBuilder, "{\"logSeq\":0,\"bootTime\":null,\"hostname\":null,\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila_old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test message\"}");
     }
 
     @Test
     public void testJsonEncoding() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id("testuser").add("tila", TESTENUM.TILA1, TESTENUM.TILA2).message("test \" message");
-        verifyLogMessage(messageBuilder, "{\"logSeq\":0,\"bootTime\":null,\"hostname\":null,\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila.old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
+        verifyLogMessage(messageBuilder, "{\"logSeq\":0,\"bootTime\":null,\"hostname\":null,\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila_old_value\":\"TILA2\",\"id\":\"testuser\",\"tila\":\"TILA1\",\"message\":\"test \\\" message\"}");
     }
 
     private void verifyLogMessage(final LogMessage.LogMessageBuilder msg, final String expectedMessage) {
@@ -60,7 +60,9 @@ public class LoggerTest {
         ArgumentCaptor<String> infoCapture = ArgumentCaptor.forClass(String.class);
         verify(loggerMock, times(1)).info(infoCapture.capture());
         final String logMessage = infoCapture.getValue();
-        assertEquals(jsonToMap(expectedMessage), jsonToMap(logMessage));
+        Map<String, String> expected = jsonToMap(expectedMessage);
+        Map<String, String> actual = jsonToMap(logMessage);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -85,7 +87,7 @@ public class LoggerTest {
     public void nullValueTest() throws ParseException {
         final LogMessage.LogMessageBuilder messageBuilder = builder().id(null).add("tila", null, TESTENUM.TILA2).message(null);
         verifyLogMessage(messageBuilder, "{\"logSeq\":0,\"bootTime\":null,\"hostname\":null,\"timestamp\":\"2015-12-01T15:30:00.000+02\",\"serviceName\":\"test\",\"applicationType\":\"opiskelija\",\"tila" +
-                ".old_value\":\"TILA2\",\"id\":null,\"tila\":null,\"message\":null}");
+                "_old_value\":\"TILA2\",\"id\":null,\"tila\":null,\"message\":null}");
     }
 
     @Test
