@@ -32,6 +32,7 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
 
     protected T safePut(String key, String value) {
         if (key != null) {
+            key = key.replaceAll("\\.", "_");
             this.mapping.put(key, value);
         }
         return (T) this;
@@ -39,6 +40,7 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
 
     protected T safePut(String key, Date value) {
         if (key != null) {
+            key = key.replaceAll("\\.", "_");
             this.mapping.put(key, safeFormat(value));
         }
         return (T) this;
@@ -75,17 +77,25 @@ public class SimpleLogMessageBuilder<T extends SimpleLogMessageBuilder<T>> {
     @Deprecated
     public T addAll(Map<String, String> mapping) {
         if (mapping != null) {
-            this.mapping.putAll(mapping);
+            Map<String, String> newmappings = new HashMap<>();
+            for(Map.Entry<String, String> e : mapping.entrySet()) {
+                String key = e.getKey();
+                key = key.replaceAll("\\.", "_");
+                newmappings.put(key, e.getValue());
+            }
+            this.mapping.putAll(newmappings);
         }
         return (T) this;
     }
 
     public <V> T add(String key, V value, V oldValue) {
+        key = key.replaceAll("\\.", "_");
         add(key, value);
         return add(key + CommonLogMessageFields.VANHA_ARVO_SUFFIX, oldValue);
     }
 
     public <V> T add(String key, V value) {
+        key = key.replaceAll("\\.", "_");
         if (value instanceof Date) {
             safePut(key, safeFormat((Date) value));
         } else if (value != null) {
