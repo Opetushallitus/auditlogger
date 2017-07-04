@@ -18,7 +18,7 @@ public class Audit {
 
     private static final int VERSION = 1;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-    public static final String TYPE_ALIVE = "alive";
+    public static final String TYPE_ALIVE = "Alive!";
     private static final String TYPE_LOG = "log";
 
     static {
