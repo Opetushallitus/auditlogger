@@ -16,6 +16,7 @@ public class Audit {
     private final String serviceName;
     private final String applicationType;
     final Gson gson = new GsonBuilder().serializeNulls().create();
+    public static int MAX_FIELD_LENGTH = 32766;
 
     /**
      * Create an Audit logger for service.
@@ -60,6 +61,9 @@ public class Audit {
         if (value == null) {
             object.add(key, null);
         } else {
+            if (value.length() > MAX_FIELD_LENGTH) {
+                log.error("Field {} length {} was greater than suggested max length of {}", key, value.length(), MAX_FIELD_LENGTH);
+            }
             object.add(key, new JsonPrimitive(value));
         }
     }
