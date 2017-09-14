@@ -1,5 +1,5 @@
 package fi.vm.sade.auditlog;
 
 public enum ApplicationType {
-    OPISKELIJA, VIRKAILIJA, BACKEND;
+    OPPIJA, VIRKAILIJA, BACKEND;
 }
