@@ -1,7 +1,9 @@
 package fi.vm.sade.auditlog.valintaperusteet;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import fi.vm.sade.auditlog.ApplicationType;
 import fi.vm.sade.auditlog.Audit;
 import fi.vm.sade.auditlog.Changes;
@@ -124,8 +126,17 @@ public class AuditTest {
     }
 
     @Test
+    public void nullStringValue() {
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", (String) null).build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertTrue(changes.getAsJsonObject("kenttä").get("newValue").isJsonNull());
+    }
+
+    @Test
     public void nullValue() {
-        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", null).build());
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", (JsonElement) null).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
@@ -143,12 +154,27 @@ public class AuditTest {
     }
 
     @Test
-    public void withAdded() throws UnknownHostException {
+    public void withAddedString() throws UnknownHostException {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", "uusiArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonObject changes = r.getAsJsonObject("changes");
         assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
+        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
+    }
+
+    @Test
+    public void withAddedObject() throws UnknownHostException {
+        JsonObject newValue = new JsonObject();
+        newValue.add("nestedKey", new JsonPrimitive("uusiArvo"));
+        audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", newValue).build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertEquals("uusiArvo", changes
+                .getAsJsonObject("kenttä")
+                .getAsJsonObject("newValue")
+                .getAsJsonPrimitive("nestedKey").getAsString());
         assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
     }
 
