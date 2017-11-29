@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -12,7 +13,7 @@ public class HeartbeatDaemon implements Runnable {
     private static HeartbeatDaemon instance = null;
     private static final long MINUTES_BETWEEN_HEARTBEATS = 10;
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(HeartbeatThreadFactory.getInstance());
     private final CopyOnWriteArrayList<Audit> loggers = new CopyOnWriteArrayList<>();
 
     private HeartbeatDaemon() {
