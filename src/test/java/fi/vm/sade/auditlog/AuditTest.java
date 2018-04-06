@@ -1,18 +1,18 @@
-package fi.vm.sade.auditlog.valintaperusteet;
+package fi.vm.sade.auditlog;
 
+import static fi.vm.sade.auditlog.ApplicationType.OPPIJA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import fi.vm.sade.auditlog.ApplicationType;
-import fi.vm.sade.auditlog.Audit;
-import fi.vm.sade.auditlog.Changes;
-import fi.vm.sade.auditlog.Clock;
-import fi.vm.sade.auditlog.HeartbeatDaemon;
-import fi.vm.sade.auditlog.Logger;
-import fi.vm.sade.auditlog.Operation;
-import fi.vm.sade.auditlog.Target;
-import fi.vm.sade.auditlog.User;
+
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
 import org.junit.Before;
@@ -25,18 +25,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static fi.vm.sade.auditlog.ApplicationType.OPPIJA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuditTest {
