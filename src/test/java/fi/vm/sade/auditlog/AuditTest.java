@@ -46,16 +46,7 @@ public class AuditTest {
             InetAddress.getByName("127.0.0.1"),
             "session-id",
             "user-agent");
-
-
-    private String longString = createLongString();
-    private String jsonString =
-                "{" +
-                    " \"longString\": \"" + longString + "\"," +
-                    " \"shortString\": \"bee\"," +
-                    " \"number\": 99," +
-                    " \"array\": [ \"" + longString + "\" ] " +
-                "}";
+    private final AuditTestDto dto = new AuditTestDto();
 
     public AuditTest() throws UnknownHostException, GSSException { }
 
@@ -218,34 +209,33 @@ public class AuditTest {
 
     @Test
     public void truncatesLongField() {
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
         assert(json.toString().length() > Audit.MAX_FIELD_LENGTH);
 
         Util.traverseAndTruncate(json);
 
         String truncatedString = json.getAsJsonObject().get("longString").getAsString();
-        assertTrue(truncatedString.length() < longString.length());
+        assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(json.toString().length() < Audit.MAX_FIELD_LENGTH);
     }
 
     @Test
     public void truncatesLongArrayElement() {
-
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
         assertTrue(json.toString().length() > Audit.MAX_FIELD_LENGTH);
 
         Util.traverseAndTruncate(json);
 
         String truncatedString = json.getAsJsonObject().get("array").getAsJsonArray().get(0).getAsString();
-        assertTrue(truncatedString.length() < longString.length());
+        assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(json.toString().length() < Audit.MAX_FIELD_LENGTH);
     }
 
     @Test
     public void truncatedStringsMatchForIdenticalInputs() {
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
         Util.traverseAndTruncate(json);
 
         String truncatedString1 = json.getAsJsonObject().get("longString").getAsString();
@@ -255,7 +245,7 @@ public class AuditTest {
 
     @Test
     public void doesNotTruncateShortField() {
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
         Util.traverseAndTruncate(json);
 
         String shortString = json.getAsJsonObject().get("shortString").getAsString();
@@ -264,7 +254,7 @@ public class AuditTest {
 
     @Test
     public void doesNotTruncateNumber() {
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
         Util.traverseAndTruncate(json);
 
         int number = json.getAsJsonObject().get("number").getAsInt();
@@ -273,15 +263,11 @@ public class AuditTest {
 
     @Test
     public void testJsonPatchDiff() {
-        String changedJsonString = "{" +
-                " \"longString\": \"" + longString + "\"," +
-                " \"shortString\": \"wasp\"," +
-                " \"number\": 99," +
-                " \"array\": [ \"" + longString + "\" ] " +
-                "}";
+        AuditTestDto changedDto = new AuditTestDto();
+        changedDto.shortString = "wasp";
 
-        JsonElement json = gson.fromJson(jsonString, JsonElement.class);
-        JsonElement jsonChanged = gson.fromJson(changedJsonString, JsonElement.class);
+        JsonElement json = gson.toJsonTree(dto);
+        JsonElement jsonChanged = gson.toJsonTree(changedDto);
         Changes.Builder builder = new Changes.Builder();
         Util.jsonDiffToChanges(builder, json, jsonChanged);
         Changes build = builder.build();
@@ -291,12 +277,19 @@ public class AuditTest {
         assertEquals(jsonObject.get("shortString").getAsJsonObject().get("newValue").getAsString(), "wasp");
     }
 
-    private String createLongString() {
+    private static String createLongString() {
         int length = 33000;
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
             sb.append("a");
         }
         return sb.toString();
+    }
+
+    public static class AuditTestDto {
+        public String longString = createLongString();
+        public String shortString = "bee";
+        public int number = 99;
+        public String[] array = new String[] { createLongString() };
     }
 }
