@@ -216,7 +216,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElement(r, "changes.change.newValue.longString").getAsString();
+        String truncatedString = Util.getJsonElementByPath(r, "changes.change.newValue.longString").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
@@ -224,43 +224,48 @@ public class AuditTest {
 
     @Test
     public void truncatesLongArrayElement() {
-        JsonElement json = gson.toJsonTree(dto);
-        assertTrue(json.toString().length() > Audit.MAX_FIELD_LENGTH);
+        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
 
-        Util.traverseAndTruncate(json);
+        audit.log(user, op, target, Changes.addedDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        String truncatedString = json.getAsJsonObject().get("array").getAsJsonArray().get(0).getAsString();
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals("log", r.get("type").getAsString());
+        String truncatedString = Util.getJsonElementByPath(r, "changes.change.newValue.array").getAsJsonArray().get(0).getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
-        assertTrue(json.toString().length() < Audit.MAX_FIELD_LENGTH);
+        assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
     }
 
     @Test
     public void truncatedStringsMatchForIdenticalInputs() {
-        JsonElement json = gson.toJsonTree(dto);
-        Util.traverseAndTruncate(json);
+        audit.log(user, op, target, Changes.addedDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        String truncatedString1 = json.getAsJsonObject().get("longString").getAsString();
-        String truncatedString2 = json.getAsJsonObject().get("array").getAsJsonArray().get(0).getAsString();
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        String truncatedString1 = Util.getJsonElementByPath(r, "changes.change.newValue.longString").getAsString();
+        String truncatedString2 = Util.getJsonElementByPath(r, "changes.change.newValue.array").getAsJsonArray().get(0).getAsString();
         assertEquals(truncatedString1, truncatedString2);
     }
 
     @Test
     public void doesNotTruncateShortField() {
-        JsonElement json = gson.toJsonTree(dto);
-        Util.traverseAndTruncate(json);
+        audit.log(user, op, target, Changes.addedDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        String shortString = json.getAsJsonObject().get("shortString").getAsString();
-        assertEquals("bee", shortString);
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        String loggedShortString = Util.getJsonElementByPath(r, "changes.change.newValue.shortString").getAsString();
+        assertEquals(dto.shortString, loggedShortString);
     }
 
     @Test
     public void doesNotTruncateNumber() {
-        JsonElement json = gson.toJsonTree(dto);
-        Util.traverseAndTruncate(json);
+        audit.log(user, op, target, Changes.addedDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        int number = json.getAsJsonObject().get("number").getAsInt();
-        assertEquals(99, number);
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        int loggedInt = Util.getJsonElementByPath(r, "changes.change.newValue.number").getAsInt();
+        assertEquals(dto.number, loggedInt);
     }
 
     @Test
@@ -268,17 +273,12 @@ public class AuditTest {
         AuditTestDto changedDto = new AuditTestDto();
         changedDto.shortString = "wasp";
 
-        JsonElement json = gson.toJsonTree(dto);
-        JsonElement jsonChanged = gson.toJsonTree(changedDto);
-        Changes.Builder builder = new Changes.Builder();
-        builder.jsonDiffToChanges(json, jsonChanged);
-        Changes build = new Changes.Builder()
-            .jsonDiffToChanges(json, jsonChanged)
-            .build();
+        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        JsonObject jsonObject = build.asJson();
-        assertEquals(jsonObject.get("shortString").getAsJsonObject().get("oldValue").getAsString(), "bee");
-        assertEquals(jsonObject.get("shortString").getAsJsonObject().get("newValue").getAsString(), "wasp");
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals(dto.shortString, Util.getJsonElementByPath(r, "changes.shortString.oldValue").getAsString());
+        assertEquals(changedDto.shortString, Util.getJsonElementByPath(r, "changes.shortString.newValue").getAsString());
     }
 
     private static String createLongString() {
