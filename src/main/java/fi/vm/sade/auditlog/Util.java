@@ -57,38 +57,6 @@ public class Util {
         return e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
     }
 
-    static Changes.Builder jsonDiffToChanges(Changes.Builder builder, JsonElement beforeJson, JsonElement afterJson) {
-        traverseAndTruncate(afterJson);
-        traverseAndTruncate(beforeJson);
-        JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
-        for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
-            AbsOperation absOperation = it.next();
-            String operation = absOperation.getOperationName();
-            JsonPath path = absOperation.path;
-
-            String prettyPath = path.toString().substring(1).replaceAll("/", ".");
-            switch (operation) {
-                case "add": {
-                    builder.added(prettyPath, ((AddOperation) absOperation).data.getAsString());
-                    break;
-                }
-                case "remove": {
-                    JsonElement oldValue = getJsonElement(beforeJson, prettyPath);
-                    builder.removed(prettyPath, oldValue.getAsString());
-                    break;
-                }
-                case "replace": {
-                    JsonElement oldValue = getJsonElement(beforeJson, prettyPath);
-                    JsonElement newValue = ((ReplaceOperation) absOperation).data;
-                    builder.updated(prettyPath, oldValue.getAsString(), newValue.getAsString());
-                    break;
-                }
-                default: throw new IllegalArgumentException("Unknown operation " + operation);
-            }
-        }
-        return builder;
-    }
-
     /**
      * Returns a JSON sub-element from the given JsonElement and the given path
      * Thankyou isapir https://stackoverflow.com/users/968244/isapir

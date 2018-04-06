@@ -209,15 +209,17 @@ public class AuditTest {
 
     @Test
     public void truncatesLongField() {
-        JsonElement json = gson.toJsonTree(dto);
-        assert(json.toString().length() > Audit.MAX_FIELD_LENGTH);
+        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
 
-        Util.traverseAndTruncate(json);
+        audit.log(user, op, target, Changes.addedDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
 
-        String truncatedString = json.getAsJsonObject().get("longString").getAsString();
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals("log", r.get("type").getAsString());
+        String truncatedString = Util.getJsonElement(r, "changes.change.newValue.longString").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
-        assertTrue(json.toString().length() < Audit.MAX_FIELD_LENGTH);
+        assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
     }
 
     @Test
@@ -269,8 +271,10 @@ public class AuditTest {
         JsonElement json = gson.toJsonTree(dto);
         JsonElement jsonChanged = gson.toJsonTree(changedDto);
         Changes.Builder builder = new Changes.Builder();
-        Util.jsonDiffToChanges(builder, json, jsonChanged);
-        Changes build = builder.build();
+        builder.jsonDiffToChanges(json, jsonChanged);
+        Changes build = new Changes.Builder()
+            .jsonDiffToChanges(json, jsonChanged)
+            .build();
 
         JsonObject jsonObject = build.asJson();
         assertEquals(jsonObject.get("shortString").getAsJsonObject().get("oldValue").getAsString(), "bee");

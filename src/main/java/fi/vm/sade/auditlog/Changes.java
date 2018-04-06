@@ -1,13 +1,43 @@
 package fi.vm.sade.auditlog;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.tananaev.jsonpatch.JsonPatch;
+import com.tananaev.jsonpatch.JsonPatchFactory;
+import com.tananaev.jsonpatch.JsonPath;
+import com.tananaev.jsonpatch.operation.AbsOperation;
+import com.tananaev.jsonpatch.operation.AddOperation;
+import com.tananaev.jsonpatch.operation.ReplaceOperation;
+
+import java.util.Iterator;
 
 public final class Changes {
+    private static final Gson gson = new Gson();
+    private static final JsonPatchFactory jsonPatchFactory = new JsonPatchFactory();
+
     private JsonObject json = new JsonObject();
 
     private Changes() { }
+
+    public static <T> Changes addedDto(T dto) {
+        return create(dto, null);
+    }
+
+    private static <T> Changes create(T afterOperation, T beforeOperation) {
+        Changes.Builder builder = new Changes.Builder();
+        if (afterOperation == null && beforeOperation != null) {
+            builder.removed("change", gson.toJsonTree(beforeOperation));
+        } else if (afterOperation != null && beforeOperation == null) {
+            builder.added("change", gson.toJsonTree(afterOperation));
+        } else if (afterOperation != null) {
+            JsonElement afterJson = gson.toJsonTree(afterOperation);
+            JsonElement beforeJson = gson.toJsonTree(beforeOperation);
+            builder.jsonDiffToChanges(beforeJson, afterJson);
+        }
+        return builder.build();
+    }
 
     public JsonObject asJson() {
         return this.json;
@@ -23,6 +53,7 @@ public final class Changes {
         public Changes build() {
             Changes r = this.changes;
             this.changes = new Changes();
+            Util.traverseAndTruncate(r.json);
             return r;
         }
 
@@ -72,6 +103,38 @@ public final class Changes {
                 o.add("oldValue", oldValue);
                 o.add("newValue", newValue);
                 changes.json.add(field, o);
+            }
+            return this;
+        }
+
+        Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
+            Util.traverseAndTruncate(afterJson);
+            Util.traverseAndTruncate(beforeJson);
+            JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
+            for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
+                AbsOperation absOperation = it.next();
+                String operation = absOperation.getOperationName();
+                JsonPath path = absOperation.path;
+
+                String prettyPath = path.toString().substring(1).replaceAll("/", ".");
+                switch (operation) {
+                    case "add": {
+                        added(prettyPath, ((AddOperation) absOperation).data.getAsString());
+                        break;
+                    }
+                    case "remove": {
+                        JsonElement oldValue = Util.getJsonElement(beforeJson, prettyPath);
+                        removed(prettyPath, oldValue.getAsString());
+                        break;
+                    }
+                    case "replace": {
+                        JsonElement oldValue = Util.getJsonElement(beforeJson, prettyPath);
+                        JsonElement newValue = ((ReplaceOperation) absOperation).data;
+                        updated(prettyPath, oldValue.getAsString(), newValue.getAsString());
+                        break;
+                    }
+                    default: throw new IllegalArgumentException("Unknown operation " + operation);
+                }
             }
             return this;
         }
