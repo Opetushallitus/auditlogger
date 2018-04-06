@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public final class Changes {
+    public static final Changes EMPTY = new Changes.Builder().build();
     private static final Gson gson = new Gson();
     private static final JsonPatchFactory jsonPatchFactory = new JsonPatchFactory();
 
