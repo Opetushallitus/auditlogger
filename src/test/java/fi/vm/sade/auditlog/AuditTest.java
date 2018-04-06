@@ -23,7 +23,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -145,7 +144,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withChange() throws UnknownHostException {
+    public void withChange() {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().updated("kenttä", "vanhaArvo", "uusiArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
@@ -155,7 +154,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withAddedString() throws UnknownHostException {
+    public void withAddedString() {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", "uusiArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
@@ -165,7 +164,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withAddedObject() throws UnknownHostException {
+    public void withAddedObject() {
         JsonObject newValue = new JsonObject();
         newValue.add("nestedKey", new JsonPrimitive("uusiArvo"));
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().added("kenttä", newValue).build());
@@ -180,7 +179,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withRemoved() throws UnknownHostException {
+    public void withRemoved() {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
@@ -190,7 +189,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withTarget() throws UnknownHostException {
+    public void withTarget() {
         audit.log(user, op,
                 new Target.Builder().setField("henkilö", "person-oid").setField("hakemus", "hakemus-oid").build(),
                 new Changes.Builder().removed("kenttä", "vanhaArvo").build());
@@ -202,7 +201,7 @@ public class AuditTest {
     }
 
     @Test
-    public void logType() throws UnknownHostException {
+    public void logType() {
         audit.log(user, op, new Target.Builder().build(), new Changes.Builder().build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
@@ -210,7 +209,7 @@ public class AuditTest {
     }
 
     @Test
-    public void aliveType() throws UnknownHostException {
+    public void aliveType() {
         audit.logHeartbeat();
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
@@ -218,7 +217,7 @@ public class AuditTest {
     }
 
     @Test
-    public void truncatesLongField() throws IOException {
+    public void truncatesLongField() {
         JsonElement json = gson.fromJson(jsonString, JsonElement.class);
         assert(json.toString().length() > Audit.MAX_FIELD_LENGTH);
 
@@ -231,7 +230,7 @@ public class AuditTest {
     }
 
     @Test
-    public void truncatesLongArrayElement() throws IOException {
+    public void truncatesLongArrayElement() {
 
         JsonElement json = gson.fromJson(jsonString, JsonElement.class);
         assertTrue(json.toString().length() > Audit.MAX_FIELD_LENGTH);
@@ -245,7 +244,7 @@ public class AuditTest {
     }
 
     @Test
-    public void truncatedStringsMatchForIdenticalInputs() throws IOException {
+    public void truncatedStringsMatchForIdenticalInputs() {
         JsonElement json = gson.fromJson(jsonString, JsonElement.class);
         Util.traverseAndTruncate(json);
 
@@ -255,7 +254,7 @@ public class AuditTest {
     }
 
     @Test
-    public void doesNotTruncateShortField() throws IOException {
+    public void doesNotTruncateShortField() {
         JsonElement json = gson.fromJson(jsonString, JsonElement.class);
         Util.traverseAndTruncate(json);
 
@@ -264,7 +263,7 @@ public class AuditTest {
     }
 
     @Test
-    public void doesNotTruncateNumber() throws IOException {
+    public void doesNotTruncateNumber() {
         JsonElement json = gson.fromJson(jsonString, JsonElement.class);
         Util.traverseAndTruncate(json);
 
@@ -273,7 +272,7 @@ public class AuditTest {
     }
 
     @Test
-    public void testJsonPatchDiff() throws IOException {
+    public void testJsonPatchDiff() {
         String changedJsonString = "{" +
                 " \"longString\": \"" + longString + "\"," +
                 " \"shortString\": \"wasp\"," +
