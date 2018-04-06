@@ -281,6 +281,17 @@ public class AuditTest {
         assertEquals(changedDto.shortString, Util.getJsonElementByPath(r, "changes.shortString.newValue").getAsString());
     }
 
+    @Test
+    public void logsAlsoDeletionViaDtoApi() {
+        dto.longString = "Not that long string that it would be truncated.";
+        dto.array[0] = "Similarly, a more moderate length string this time.";
+        audit.log(user, op, target, Changes.deleteDto(dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals(gson.toJson(dto), Util.getJsonElementByPath(r, "changes.change.oldValue").toString());
+    }
+
     private static String createLongString() {
         int length = 33000;
         StringBuilder sb = new StringBuilder();
