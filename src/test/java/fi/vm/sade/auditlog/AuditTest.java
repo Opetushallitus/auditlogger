@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -294,6 +295,20 @@ public class AuditTest {
         assertNull(Util.getJsonElementByPath(r, "changes.nestedDto.oldValue"));
         String escapedJsonString = gson.toJson(gson.toJsonTree(changedDto.nestedDto).toString());
         assertEquals(escapedJsonString, Util.getJsonElementByPath(r, "changes.nestedDto.newValue").toString());
+    }
+
+    @Test
+    public void removalFromArrayGetsLoggedCorrectly() {
+        dto = new AuditTestDto(false);
+        AuditTestDto changedDto = new AuditTestDto(false);
+        changedDto.array = new String[] {};
+
+        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals("{\"oldValue\":\"Similarly, a more moderate length string this time.\"}", r.getAsJsonObject("changes").get("array.0").toString());
+        assertEquals(JsonNull.INSTANCE, Util.getJsonElementByPath(r, "changes.array.0.oldValue"));
     }
 
     @Test

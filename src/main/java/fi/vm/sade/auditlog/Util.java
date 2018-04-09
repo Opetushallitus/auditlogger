@@ -30,7 +30,7 @@ public class Util {
             if (result.isJsonObject()) {
                 result = result.getAsJsonObject().get(key);
             } else if (result.isJsonArray()) {
-                int ix = Integer.valueOf(key) - 1;
+                int ix = Integer.valueOf(key);
                 result = result.getAsJsonArray().get(ix);
             } else break;
         }
