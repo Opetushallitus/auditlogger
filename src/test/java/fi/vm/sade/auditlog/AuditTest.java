@@ -298,6 +298,20 @@ public class AuditTest {
     }
 
     @Test
+    public void nestedDataInsideNestedDataPosesNoProblem() {
+        dto = new AuditTestDto(false);
+        AuditTestDto changedDto = new AuditTestDto(false);
+        changedDto.longString = "A slightly modified String to make us wonder.";
+
+        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals(dto.longString, Util.getJsonElementByPath(r, "changes.longString.oldValue").getAsString());
+        assertEquals("A slightly modified String to make us wonder.", Util.getJsonElementByPath(r, "changes.longString.newValue").getAsString());
+    }
+
+    @Test
     public void removalFromArrayGetsLoggedCorrectly() {
         dto = new AuditTestDto(false);
         AuditTestDto changedDto = new AuditTestDto(false);
