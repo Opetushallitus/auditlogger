@@ -11,6 +11,7 @@ import com.tananaev.jsonpatch.JsonPatchFactory;
 import com.tananaev.jsonpatch.JsonPath;
 import com.tananaev.jsonpatch.operation.AbsOperation;
 import com.tananaev.jsonpatch.operation.AddOperation;
+import com.tananaev.jsonpatch.operation.MoveOperation;
 import com.tananaev.jsonpatch.operation.ReplaceOperation;
 
 import java.util.Iterator;
@@ -116,7 +117,7 @@ public final class Changes {
                 String operation = absOperation.getOperationName();
                 JsonPath path = absOperation.path;
 
-                String prettyPath = path.toString().substring(1).replaceAll("/", ".");
+                String prettyPath = prettify(path);
                 switch (operation) {
                     case "add": {
                         added(prettyPath, toJsonString(((AddOperation) absOperation).data));
@@ -133,7 +134,17 @@ public final class Changes {
                         updated(prettyPath, toJsonString(oldValue), toJsonString(newValue));
                         break;
                     }
-                    default: throw new IllegalArgumentException("Unknown operation " + operation);
+                    case "move": {
+                        String prettyFromPath = prettify(((MoveOperation) absOperation).from);
+                        JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyFromPath);
+                        removed(prettyFromPath, toJsonString(oldValue));
+
+                        JsonElement newValue = Util.getJsonElementByPath(afterJson, prettyPath);
+                        added(prettyPath, newValue);
+                        break;
+                    }
+                    default: throw new IllegalArgumentException(String.format("Unknown operation %s in %s . before: %s . after: %s"
+                        , operation, absOperation.path, beforeJson, afterJson));
                 }
             }
             return this;
@@ -180,6 +191,10 @@ public final class Changes {
         private boolean isTextual(JsonElement e) {
             return e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
         }
+    }
+
+    private static String prettify(JsonPath path) {
+        return path.toString().substring(1).replaceAll("/", ".");
     }
 
     private static String toJsonString(JsonElement element) {

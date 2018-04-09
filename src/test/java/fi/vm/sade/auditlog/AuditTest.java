@@ -326,6 +326,24 @@ public class AuditTest {
     }
 
     @Test
+    public void jsonPatchMoveIsLoggedAsRemoveAndAdd() {
+        dto = new AuditTestDto(false);
+        AuditTestDto changedDto = new AuditTestDto(false);
+        String movingString = "Moving String";
+        dto.shortString = movingString;
+        dto.longString = null;
+        changedDto.shortString = null;
+        changedDto.longString = movingString;
+
+        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertEquals(movingString, Util.getJsonElementByPath(r, "changes.shortString.oldValue").getAsString());
+        assertEquals(movingString, Util.getJsonElementByPath(r, "changes.longString.newValue").getAsString());
+    }
+
+    @Test
     public void logsAlsoDeletionViaDtoApi() {
         dto = new AuditTestDto(false);
         audit.log(user, op, target, Changes.deleteDto(dto));
