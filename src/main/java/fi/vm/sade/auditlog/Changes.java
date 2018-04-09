@@ -119,18 +119,18 @@ public final class Changes {
                 String prettyPath = path.toString().substring(1).replaceAll("/", ".");
                 switch (operation) {
                     case "add": {
-                        added(prettyPath, ((AddOperation) absOperation).data.getAsString());
+                        added(prettyPath, toJsonString(((AddOperation) absOperation).data));
                         break;
                     }
                     case "remove": {
                         JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyPath);
-                        removed(prettyPath, oldValue.getAsString());
+                        removed(prettyPath, toJsonString(oldValue));
                         break;
                     }
                     case "replace": {
                         JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyPath);
                         JsonElement newValue = ((ReplaceOperation) absOperation).data;
-                        updated(prettyPath, oldValue.getAsString(), newValue.getAsString());
+                        updated(prettyPath, toJsonString(oldValue), toJsonString(newValue));
                         break;
                     }
                     default: throw new IllegalArgumentException("Unknown operation " + operation);
@@ -150,7 +150,7 @@ public final class Changes {
                     String fieldName = entry.getKey();
                     JsonElement child = entry.getValue();
                     if (isTextual(child)) {
-                        object.addProperty(fieldName, truncate(child.getAsString()));
+                        object.addProperty(fieldName, truncate(toJsonString(child)));
                     } else {
                         traverseAndTruncate(child);
                     }
@@ -160,7 +160,7 @@ public final class Changes {
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement child = array.get(i);
                     if (isTextual(child)) {
-                        array.set(i, new JsonPrimitive(truncate(child.getAsString())));
+                        array.set(i, new JsonPrimitive(truncate(toJsonString(child))));
                     } else {
                         traverseAndTruncate(child);
                     }
@@ -179,6 +179,14 @@ public final class Changes {
 
         private boolean isTextual(JsonElement e) {
             return e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
+        }
+    }
+
+    private static String toJsonString(JsonElement element) {
+        if (element.isJsonPrimitive() || element.isJsonNull()) {
+            return element.getAsString();
+        } else {
+            return gson.toJson(element);
         }
     }
 }

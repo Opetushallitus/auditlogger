@@ -46,7 +46,7 @@ public class AuditTest {
             "session-id",
             "user-agent");
     private final Target target = new Target.Builder().build();
-    private final AuditTestDto dto = new AuditTestDto();
+    private AuditTestDto dto = new AuditTestDto();
 
     public AuditTest() throws UnknownHostException, GSSException { }
 
@@ -282,9 +282,23 @@ public class AuditTest {
     }
 
     @Test
+    public void updateOfNestedJsonObjectGetsLoggedCorrectly() {
+        dto = new AuditTestDto(false);
+        AuditTestDto changedDto = new AuditTestDto(false);
+        changedDto.nestedDto = new AuditTestDto(false);
+
+        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        assertNull(Util.getJsonElementByPath(r, "changes.nestedDto.oldValue"));
+        String escapedJsonString = gson.toJson(gson.toJsonTree(changedDto.nestedDto).toString());
+        assertEquals(escapedJsonString, Util.getJsonElementByPath(r, "changes.nestedDto.newValue").toString());
+    }
+
+    @Test
     public void logsAlsoDeletionViaDtoApi() {
-        dto.longString = "Not that long string that it would be truncated.";
-        dto.array[0] = "Similarly, a more moderate length string this time.";
+        dto = new AuditTestDto(false);
         audit.log(user, op, target, Changes.deleteDto(dto));
         verify(logger, times(1)).log(msgCaptor.capture());
 
@@ -302,9 +316,21 @@ public class AuditTest {
     }
 
     public static class AuditTestDto {
-        public String longString = createLongString();
+        public String longString = "Not that long string that it would be truncated.";
         public String shortString = "bee";
         public int number = 99;
-        public String[] array = new String[] { createLongString() };
+        public String[] array = new String[] { "Similarly, a more moderate length string this time." };
+        public AuditTestDto nestedDto = null;
+
+        public AuditTestDto(boolean withLongStringsThatNeedToBeTruncated) {
+            if (withLongStringsThatNeedToBeTruncated) {
+                longString = createLongString();
+                array = new String[] { createLongString() };
+            }
+        }
+
+        public AuditTestDto() {
+            this(true);
+        }
     }
 }
