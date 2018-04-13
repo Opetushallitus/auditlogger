@@ -2,24 +2,19 @@ package fi.vm.sade.auditlog;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Audit {
-
     private static final int VERSION = 1;
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     public static final String TYPE_ALIVE = "alive";
     private static final String TYPE_LOG = "log";
+    public static final int MAX_FIELD_LENGTH = 32766;
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));
