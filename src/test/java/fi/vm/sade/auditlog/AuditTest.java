@@ -316,7 +316,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         int loggedInt = Util.getJsonElementByPath(r, "changes.change.newValue.number").getAsInt();
-        assertEquals(dto.number, loggedInt);
+        assertEquals(dto.number, Integer.toString(loggedInt));
     }
 
     @Test
@@ -415,7 +415,7 @@ public class AuditTest {
     public static class AuditTestDto {
         public String longString = "Not that long string that it would be truncated.";
         public String shortString = "bee";
-        public int number = 99;
+        public String number = "99";
         public String[] array = new String[] { "Similarly, a more moderate length string this time." };
         public AuditTestDto nestedDto = null;
 

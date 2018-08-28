@@ -59,8 +59,8 @@ public final class Changes {
         }
 
         public Builder added(String field, String newValue) {
-           return this.added(field,
-                   newValue == null ? null : new JsonPrimitive(newValue));
+            return this.added(field,
+                    newValue == null ? null : new JsonPrimitive(newValue));
         }
 
         public Builder added(String field, JsonElement newValue) {
@@ -168,7 +168,7 @@ public final class Changes {
                         break;
                     }
                     default: throw new IllegalArgumentException(String.format("Unknown operation %s in %s . before: %s . after: %s"
-                        , operation, absOperation.path, beforeJson, afterJson));
+                            , operation, absOperation.path, beforeJson, afterJson));
                 }
             }
             return this;
@@ -184,7 +184,7 @@ public final class Changes {
                 for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                     String fieldName = entry.getKey();
                     JsonElement child = entry.getValue();
-                    if (isTextual(child)) {
+                    if (child.isJsonPrimitive()) {
                         object.addProperty(fieldName, truncate(toJsonString(child)));
                     } else {
                         traverseAndTruncate(child);
@@ -194,7 +194,7 @@ public final class Changes {
                 JsonArray array = data.getAsJsonArray();
                 for (int i = 0; i < array.size(); i++) {
                     JsonElement child = array.get(i);
-                    if (isTextual(child)) {
+                    if (child.isJsonPrimitive()) {
                         array.set(i, new JsonPrimitive(truncate(toJsonString(child))));
                     } else {
                         traverseAndTruncate(child);
@@ -210,10 +210,6 @@ public final class Changes {
             } else {
                 return Integer.toString(data.hashCode());
             }
-        }
-
-        private boolean isTextual(JsonElement e) {
-            return e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
         }
     }
 
