@@ -46,6 +46,7 @@ public class AuditTest {
             "user-agent");
     private final Target target = new Target.Builder().build();
     private AuditTestDto dto = new AuditTestDto();
+    private AuditTestDtoWithNumberString dtoWithNumberString = new AuditTestDtoWithNumberString();
 
     public AuditTest() throws UnknownHostException, GSSException { }
 
@@ -315,8 +316,8 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        int loggedInt = Util.getJsonElementByPath(r, "changes.change.newValue.number").getAsInt();
-        assertEquals(dto.number, Integer.toString(loggedInt));
+        String loggedInt = Util.getJsonElementByPath(r, "changes.change.newValue.number").getAsString();
+        assertEquals(Integer.toString(dto.number), loggedInt);
     }
 
     @Test
@@ -334,17 +335,17 @@ public class AuditTest {
 
     @Test
     public void updateOfNestedJsonObjectGetsLoggedCorrectly() {
-        dto = new AuditTestDto(false);
-        AuditTestDto changedDto = new AuditTestDto(false);
-        changedDto.nestedDto = new AuditTestDto(false);
+        dtoWithNumberString = new AuditTestDtoWithNumberString(false);
+        AuditTestDtoWithNumberString changedDtoWithNumberString = new AuditTestDtoWithNumberString(false);
+        changedDtoWithNumberString.nestedDtoWithNumberString = new AuditTestDtoWithNumberString(false);
 
-        audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
+        audit.log(user, op, target, Changes.updatedDto(changedDtoWithNumberString, dtoWithNumberString));
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertNull(Util.getJsonElementByPath(r, "changes.nestedDto.oldValue"));
-        String escapedJsonString = gson.toJson(gson.toJsonTree(changedDto.nestedDto).toString());
-        assertEquals(escapedJsonString, Util.getJsonElementByPath(r, "changes.nestedDto.newValue").toString());
+        assertNull(Util.getJsonElementByPath(r, "changes.nestedDtoWithNumberString.oldValue"));
+        String escapedJsonString = gson.toJson(gson.toJsonTree(changedDtoWithNumberString.nestedDtoWithNumberString).toString());
+        assertEquals(escapedJsonString, Util.getJsonElementByPath(r, "changes.nestedDtoWithNumberString.newValue").toString());
     }
 
     @Test
@@ -395,12 +396,12 @@ public class AuditTest {
 
     @Test
     public void logsAlsoDeletionViaDtoApi() {
-        dto = new AuditTestDto(false);
-        audit.log(user, op, target, Changes.deleteDto(dto));
+        dtoWithNumberString = new AuditTestDtoWithNumberString(false);
+        audit.log(user, op, target, Changes.deleteDto(dtoWithNumberString));
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals(gson.toJson(dto), Util.getJsonElementByPath(r, "changes.change.oldValue").toString());
+        assertEquals(gson.toJson(dtoWithNumberString), Util.getJsonElementByPath(r, "changes.change.oldValue").toString());
     }
 
     private static String createLongString() {
@@ -415,7 +416,7 @@ public class AuditTest {
     public static class AuditTestDto {
         public String longString = "Not that long string that it would be truncated.";
         public String shortString = "bee";
-        public String number = "99";
+        public int number = 99;
         public String[] array = new String[] { "Similarly, a more moderate length string this time." };
         public AuditTestDto nestedDto = null;
 
@@ -430,4 +431,25 @@ public class AuditTest {
             this(true);
         }
     }
+
+    public static class AuditTestDtoWithNumberString {
+        public String longString = "Not that long string that it would be truncated.";
+        public String shortString = "bee";
+        public String number = "99";
+        public String[] array = new String[] { "Similarly, a more moderate length string this time." };
+        public AuditTestDtoWithNumberString nestedDtoWithNumberString = null;
+
+        public AuditTestDtoWithNumberString(boolean withLongStringsThatNeedToBeTruncated) {
+            if (withLongStringsThatNeedToBeTruncated) {
+                longString = createLongString();
+                array = new String[] { createLongString() };
+            }
+        }
+
+        public AuditTestDtoWithNumberString() {
+            this(true);
+        }
+    }
+
+
 }
