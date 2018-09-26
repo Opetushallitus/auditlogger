@@ -7,7 +7,7 @@ Syslog4j-kirjastot:
 * https://github.com/Graylog2/syslog4j-graylog2
 * https://github.com/twall/jna
 
-##Käyttöönotto
+## Käyttöönotto
 
 Maven: 
 ``` 
@@ -23,7 +23,7 @@ SBT:
     "fi.vm.sade" % "auditlogger" % "versio-pom.xml-tiedostossa"
 ```
 
-###Käyttö
+### Käyttö
 
 Jokaiselle palvelulle on oma paketti, jonka alta löytyy LogMessage-luokka, jota tulisi käyttää. Oheisessa esimerkissä 
 käytetään valintaperusteet-repon versiota. 
@@ -56,7 +56,7 @@ lokitiedosto (konfiguraatiosta riippuen, esim /logs/auditlog_omatsivut.log):
 
 `{"id":"testuser","message":"test message","hakukohdeOid":"1.2.246.562.20.68888036172","serviceName":"test","applicationType":"opiskelija"}
 
-###Kehitys
+### Kehitys
 
 OS X:
 Ajamalla `mvn test` Audit kirjoittaa lokia tiedostoihin:
@@ -67,7 +67,7 @@ Ajamalla `mvn test` Audit kirjoittaa lokia tiedostoihin:
 Syslogia voi ihmetellä myös OS X:n Console-sovelluksella.
 
 
-###Logback-konfiguraatioesimerkki
+### Logback-konfiguraatioesimerkki
 
 Audit lokittaa myös käyttäen slf4j fasadia, johon voi konfiguroida toteutuksen sovellluksessa.
 Alla Logback-esimerkki.
@@ -115,7 +115,7 @@ src/main/resources/logback.xml:
     </configuration>
 ```
 
-###log4j-kofiguraatioesimerkki
+### log4j-kofiguraatioesimerkki
 
 Maven pom.xml:
 
