@@ -1,9 +1,7 @@
 package fi.vm.sade.auditlog;
 
 import static fi.vm.sade.auditlog.ApplicationType.OPPIJA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -171,6 +169,33 @@ public class AuditTest {
     }
 
     @Test
+    public void withAddedJsonObject() {
+        JsonObject newValue = new JsonObject();
+        newValue.add("kenttä", new JsonPrimitive("uusiArvo"));
+        audit.log(user, op, target, new Changes.Builder().added(newValue).build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertEquals("uusiArvo", changes
+                .getAsJsonObject("kenttä")
+                .getAsJsonPrimitive("newValue").getAsString());
+        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
+    }
+
+    @Test
+    public void withAddedExisting() {
+        audit.log(user, op, target, new Changes.Builder()
+                .removed("kenttä", "vanhaArvo")
+                .added("kenttä", "uusiArvo")
+                .build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
+        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
+    }
+
+    @Test
     public void withRemoved() {
         audit.log(user, op, target, new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
@@ -178,6 +203,31 @@ public class AuditTest {
         JsonObject changes = r.getAsJsonObject("changes");
         assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
         assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue"));
+    }
+
+    @Test
+    public void withRemovedJsonObject() {
+        JsonObject oldValue = new JsonObject();
+        oldValue.add("kenttä", new JsonPrimitive("vanhaArvo"));
+        audit.log(user, op, target, new Changes.Builder().removed(oldValue).build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
+        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue"));
+    }
+
+    @Test
+    public void withRemovedExisting() {
+        audit.log(user, op, target, new Changes.Builder()
+                .added("kenttä", "uusiArvo")
+                .removed("kenttä", "vanhaArvo")
+                .build());
+        verify(logger, times(1)).log(msgCaptor.capture());
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonObject changes = r.getAsJsonObject("changes");
+        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
+        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
     }
 
     @Test
