@@ -67,9 +67,21 @@ public final class Changes {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            JsonObject o = new JsonObject();
+            JsonObject o = changes.json.getAsJsonObject(field);
+            if (o == null) {
+                o = new JsonObject();
+                changes.json.add(field, o);
+            }
             o.add("newValue", newValue);
-            changes.json.add(field, o);
+            return this;
+        }
+
+        public Builder added(JsonObject newValues) {
+            if (newValues != null) {
+                for (Map.Entry<String, JsonElement> entry : newValues.entrySet()) {
+                    added(entry.getKey(), entry.getValue());
+                }
+            }
             return this;
         }
 
@@ -82,9 +94,21 @@ public final class Changes {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            JsonObject o = new JsonObject();
+            JsonObject o = changes.json.getAsJsonObject(field);
+            if (o == null) {
+                o = new JsonObject();
+                changes.json.add(field, o);
+            }
             o.add("oldValue", oldValue);
-            changes.json.add(field, o);
+            return this;
+        }
+
+        public Builder removed(JsonObject oldValues) {
+            if (oldValues != null) {
+                for (Map.Entry<String, JsonElement> entry : oldValues.entrySet()) {
+                    removed(entry.getKey(), entry.getValue());
+                }
+            }
             return this;
         }
 
