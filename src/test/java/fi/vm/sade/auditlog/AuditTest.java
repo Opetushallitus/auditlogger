@@ -268,7 +268,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.change.newValue.longString").getAsString();
+        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue.longString").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
@@ -283,7 +283,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.change.newValue.array").getAsJsonArray().get(0).getAsString();
+        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue.array").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
@@ -295,29 +295,19 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String truncatedString1 = Util.getJsonElementByPath(r, "changes.change.newValue.longString").getAsString();
-        String truncatedString2 = Util.getJsonElementByPath(r, "changes.change.newValue.array").getAsJsonArray().get(0).getAsString();
+        String truncatedString1 = Util.getJsonElementByPath(r, "changes.newValue.longString").getAsString();
+        String truncatedString2 = Util.getJsonElementByPath(r, "changes.newValue.array").getAsString();
         assertEquals(truncatedString1, truncatedString2);
     }
 
     @Test
-    public void doesNotTruncateShortField() {
+    public void truncateChangesWithLongString() {
         audit.log(user, op, target, Changes.addedDto(dto));
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String loggedShortString = Util.getJsonElementByPath(r, "changes.change.newValue.shortString").getAsString();
-        assertEquals(dto.shortString, loggedShortString);
-    }
-
-    @Test
-    public void doesNotTruncateNumber() {
-        audit.log(user, op, target, Changes.addedDto(dto));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String loggedInt = Util.getJsonElementByPath(r, "changes.change.newValue.number").getAsString();
-        assertEquals(Integer.toString(dto.number), loggedInt);
+        String loggedInt = Util.getJsonElementByPath(r, "changes.newValue.number").getAsString();
+        assertEquals("1258294166", loggedInt);
     }
 
     @Test
@@ -401,7 +391,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals(gson.toJson(dtoWithNumberString), Util.getJsonElementByPath(r, "changes.change.oldValue").toString());
+        assertEquals(new JsonPrimitive(gson.toJson(dtoWithNumberString)), Util.getJsonElementByPath(r, "changes.oldValue").getAsJsonPrimitive());
     }
 
     private static String createLongString() {

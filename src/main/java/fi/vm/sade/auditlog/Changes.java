@@ -27,7 +27,7 @@ public final class Changes {
     private Changes() { }
 
     public static <T> Changes addedDto(T dto) {
-        return new Changes.Builder().added("change", gson.toJsonTree(dto)).build();
+        return new Changes.Builder().added(gson.toJsonTree(dto)).build();
     }
 
     public static <T> Changes updatedDto(T dtoAfter, T dtoBefore) {
@@ -37,7 +37,7 @@ public final class Changes {
     }
 
     public static <T> Changes deleteDto(T dto) {
-        return new Changes.Builder().removed("change", gson.toJsonTree(dto)).build();
+        return new Changes.Builder().removed(gson.toJsonTree(dto)).build();
     }
 
     public JsonObject asJson() {
@@ -61,6 +61,13 @@ public final class Changes {
         public Builder added(String field, String newValue) {
             return this.added(field,
                     newValue == null ? null : new JsonPrimitive(newValue));
+        }
+
+        public Builder added(JsonElement newValue) {
+            if (!newValue.isJsonNull()) {
+                changes.json.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+            }
+            return this;
         }
 
         public Builder added(String field, JsonElement newValue) {
@@ -88,6 +95,13 @@ public final class Changes {
         public Builder removed(String field, String oldValue) {
             return this.removed(field,
                     oldValue == null ? null : new JsonPrimitive(oldValue));
+        }
+
+        public Builder removed(JsonElement oldValue) {
+            if (!oldValue.isJsonNull()) {
+                changes.json.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+            }
+            return this;
         }
 
         public Builder removed(String field, JsonElement oldValue) {
