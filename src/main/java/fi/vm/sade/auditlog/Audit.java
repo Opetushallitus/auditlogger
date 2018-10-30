@@ -109,7 +109,8 @@ public class Audit {
         json.add("user", user.asJson());
         json.addProperty("operation", operation.name());
         json.add("target", target.asJson());
-        json.add("changes", changes.asJson());
+        //json.add("changes", changes.asJson());
+        json.add("changes", changes.asJsonArray());
         logger.log(gson.toJson(json));
     }
 }
