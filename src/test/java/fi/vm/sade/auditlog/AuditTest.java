@@ -6,11 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
+import com.google.gson.*;
 
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
@@ -54,6 +51,7 @@ public class AuditTest {
     public void initMock() {
         when(clock.wallClockTime()).thenReturn(bootTime);
         audit = new Audit(logger, "test", OPPIJA, hostname, heartbeatDaemon, clock);
+        when(op.name()).thenReturn("OP");
     }
 
     @Test
@@ -97,11 +95,16 @@ public class AuditTest {
 
     @Test
     public void operation() {
-        when(op.name()).thenReturn("OP");
         audit.log(user, op, target, new Changes.Builder().build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("OP", r.get("operation").getAsString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void noOperation() {
+        op = null;
+        audit.log(user, op, target, new Changes.Builder().build());
     }
 
     @Test
@@ -121,8 +124,8 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().added("kenttä", (String) null).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertTrue(changes.getAsJsonObject("kenttä").get("newValue").isJsonNull());
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertNull(Util.getJsonElementByPath(r, "changes.newValue"));
     }
 
     @Test
@@ -130,8 +133,8 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().added("kenttä", (JsonElement) null).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertTrue(changes.getAsJsonObject("kenttä").get("newValue").isJsonNull());
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertNull(Util.getJsonElementByPath(r, "changes.newValue"));
     }
 
     @Test
@@ -139,9 +142,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().updated("kenttä", "vanhaArvo", "uusiArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
-        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.oldValue").getAsString());
+        assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.newValue").getAsString());
     }
 
     @Test
@@ -149,9 +152,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().added("kenttä", "uusiArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
-        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.newValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.oldValue"));
     }
 
     @Test
@@ -161,12 +164,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().added("kenttä", newValue).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("uusiArvo", changes
-                .getAsJsonObject("kenttä")
-                .getAsJsonObject("newValue")
-                .getAsJsonPrimitive("nestedKey").getAsString());
-        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("{\"nestedKey\":\"uusiArvo\"}", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.oldValue"));
     }
 
     @Test
@@ -176,11 +176,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().added(newValue).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("uusiArvo", changes
-                .getAsJsonObject("kenttä")
-                .getAsJsonPrimitive("newValue").getAsString());
-        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue"));
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.oldValue"));
     }
 
     @Test
@@ -191,9 +189,9 @@ public class AuditTest {
                 .build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
-        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
     }
 
     @Test
@@ -201,9 +199,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().removed("kenttä", "vanhaArvo").build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
-        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue"));
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.newValue"));
     }
 
     @Test
@@ -213,9 +211,9 @@ public class AuditTest {
         audit.log(user, op, target, new Changes.Builder().removed(oldValue).build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
-        assertNull(changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue"));
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.newValue"));
     }
 
     @Test
@@ -226,9 +224,9 @@ public class AuditTest {
                 .build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonObject changes = r.getAsJsonObject("changes");
-        assertEquals("uusiArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("newValue").getAsString());
-        assertEquals("vanhaArvo", changes.getAsJsonObject("kenttä").getAsJsonPrimitive("oldValue").getAsString());
+        JsonArray changes = r.getAsJsonArray("changes");
+        assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
     }
 
     @Test
@@ -268,7 +266,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue.longString").getAsString();
+        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
@@ -283,7 +281,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue.array").getAsString();
+        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
         assertTrue(truncatedString.length() < dto.longString.length());
         assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
         assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
@@ -295,8 +293,8 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String truncatedString1 = Util.getJsonElementByPath(r, "changes.newValue.longString").getAsString();
-        String truncatedString2 = Util.getJsonElementByPath(r, "changes.newValue.array").getAsString();
+        String truncatedString1 = Util.getJsonElementByPath(r, "changes.longString.newValue").getAsString();
+        String truncatedString2 = Util.getJsonElementByPath(r, "changes.array.newValue").getAsString();
         assertEquals(truncatedString1, truncatedString2);
     }
 
@@ -306,7 +304,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String loggedInt = Util.getJsonElementByPath(r, "changes.newValue.number").getAsString();
+        String loggedInt = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
         assertEquals("1258294166", loggedInt);
     }
 
@@ -362,8 +360,8 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals("{\"oldValue\":\"Similarly, a more moderate length string this time.\"}", r.getAsJsonObject("changes").get("array.0").toString());
-        assertEquals(JsonNull.INSTANCE, Util.getJsonElementByPath(r, "changes.array.0.oldValue"));
+        assertEquals("Similarly, a more moderate length string this time.", Util.getJsonElementByPath(r, "changes.array.0.oldValue").getAsString());
+        assertNull(Util.getJsonElementByPath(r, "changes.array.0.newValue"));
     }
 
     @Test

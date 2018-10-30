@@ -22,7 +22,7 @@ public final class Changes {
     private static final Gson gson = new Gson();
     private static final JsonPatchFactory jsonPatchFactory = new JsonPatchFactory();
 
-    private JsonObject json = new JsonObject();
+    private JsonArray jsonArray = new JsonArray();
 
     private Changes() { }
 
@@ -40,10 +40,9 @@ public final class Changes {
         return new Changes.Builder().removed(gson.toJsonTree(dto)).build();
     }
 
-    public JsonObject asJson() {
-        return this.json;
+    public JsonArray asJsonArray() {
+        return this.jsonArray;
     }
-
     public static class Builder {
         private Changes changes;
 
@@ -54,7 +53,7 @@ public final class Changes {
         public Changes build() {
             Changes r = this.changes;
             this.changes = new Changes();
-            traverseAndTruncate(r.json);
+            traverseAndTruncate(r.jsonArray);
             return r;
         }
 
@@ -65,7 +64,9 @@ public final class Changes {
 
         public Builder added(JsonElement newValue) {
             if (!newValue.isJsonNull()) {
-                changes.json.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+                JsonObject j = new JsonObject();
+                j.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+                changes.jsonArray.add(j);
             }
             return this;
         }
@@ -74,12 +75,26 @@ public final class Changes {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            JsonObject o = changes.json.getAsJsonObject(field);
-            if (o == null) {
-                o = new JsonObject();
-                changes.json.add(field, o);
+
+            JsonObject o = new JsonObject();
+            for (int i = 0; i < changes.jsonArray.size(); i++) {
+                JsonObject j = changes.jsonArray.get(i).getAsJsonObject();
+                if (j.get("fieldName").equals(new JsonPrimitive(field))) {
+                    o = j;
+                    break;
+                }
             }
-            o.add("newValue", newValue);
+
+            if (o.entrySet().size() == 0) {
+                o = new JsonObject();
+                o.add("fieldName", new JsonPrimitive(field));
+                changes.jsonArray.add(o);
+            }
+            if (newValue == null || newValue.isJsonPrimitive()) {
+                o.add("newValue", newValue);
+            } else {
+                o.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+            }
             return this;
         }
 
@@ -99,7 +114,9 @@ public final class Changes {
 
         public Builder removed(JsonElement oldValue) {
             if (!oldValue.isJsonNull()) {
-                changes.json.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+                JsonObject j = new JsonObject();
+                j.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+                changes.jsonArray.add(j);
             }
             return this;
         }
@@ -108,12 +125,27 @@ public final class Changes {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            JsonObject o = changes.json.getAsJsonObject(field);
-            if (o == null) {
-                o = new JsonObject();
-                changes.json.add(field, o);
+
+            JsonObject o = new JsonObject();
+            for(int i = 0; i < changes.jsonArray.size(); i++) {
+                JsonObject j = changes.jsonArray.get(i).getAsJsonObject();
+                if(j.get("fieldName").equals(new JsonPrimitive(field))) {
+                    o = j;
+                    break;
+                }
             }
-            o.add("oldValue", oldValue);
+
+            if (o.entrySet().size() == 0) {
+                o = new JsonObject();
+                o.add("fieldName", new JsonPrimitive(field));
+                changes.jsonArray.add(o);
+            }
+
+            if (oldValue == null || oldValue.isJsonPrimitive()) {
+                o.add("oldValue", oldValue);
+            } else {
+                o.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+            }
             return this;
         }
 
@@ -139,13 +171,13 @@ public final class Changes {
             }
             if (hasChange(oldValue, newValue)) {
                 JsonObject o = new JsonObject();
+                o.add("fieldName", new JsonPrimitive(field));
                 o.add("oldValue", oldValue);
                 o.add("newValue", newValue);
-                changes.json.add(field, o);
+                changes.jsonArray.add(o);
             }
             return this;
         }
-
         private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
             traverseAndTruncate(afterJson);
             traverseAndTruncate(beforeJson);
