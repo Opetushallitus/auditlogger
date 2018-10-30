@@ -3,10 +3,6 @@ package fi.vm.sade.auditlog;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
-import java.util.Iterator;
-import java.util.Map;
 
 public class Util {
     /**
@@ -35,26 +31,25 @@ public class Util {
             if (result.isJsonObject()) {
                 result = result.getAsJsonObject().get(key);
             } else if (result.isJsonArray()) {
-                //int ix = Integer.valueOf(key);
-                //result = result.getAsJsonArray().get(ix);
-                /*
-                if (key == lastKey) {
-                    result = result.getAsJsonArray().get(0);
-                    break;
-                }
-                */
-
-                for(int i = 0; i < result.getAsJsonArray().size(); i++) {
-                    JsonObject j = result.getAsJsonArray().get(i).getAsJsonObject();
-                    if (j.has(key)) {
-                        result = j.get(lastKey);
-                        break;
+                try {
+                    int ix = Integer.valueOf(key);
+                    result = result.getAsJsonArray().get(ix);
+                } catch (NumberFormatException e) {
+                    for(int i = 0; i < result.getAsJsonArray().size(); i++) {
+                        JsonObject j = result.getAsJsonArray().get(i).getAsJsonObject();
+                        if (j.has(key) && j.has(lastKey)) {
+                            result = j.get(lastKey);
+                            break;
+                        }
                     }
-
                 }
             } else break;
-        }
 
-        return result;
+        }
+        if (result != null && result.isJsonPrimitive()) {
+           return result;
+        } else {
+            return null;
+        }
     }
 }

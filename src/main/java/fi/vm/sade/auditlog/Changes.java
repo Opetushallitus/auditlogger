@@ -109,9 +109,9 @@ public final class Changes {
             }
 
             JsonObject o = new JsonObject();
-            for(int i = 0; i < changes.jsonArray.size(); i++) {
+            for (int i = 0; i < changes.jsonArray.size(); i++) {
                 JsonObject j = changes.jsonArray.get(i).getAsJsonObject();
-                if(j.get("fieldName").equals(new JsonPrimitive(field))) {
+                if (j.get("fieldName").equals(new JsonPrimitive(field))) {
                     o = j;
                     break;
                 }
@@ -120,13 +120,13 @@ public final class Changes {
             if (o.entrySet().size() == 0) {
                 o = new JsonObject();
                 o.add("fieldName", new JsonPrimitive(field));
-                //o.add("oldValue", new JsonPrimitive("NA"));
-                o.add("newValue", newValue);
                 changes.jsonArray.add(o);
-            } else {
-                o.add("newValue", newValue);
             }
-
+            if (newValue == null || newValue.isJsonPrimitive()) {
+                o.add("newValue", newValue);
+            } else {
+                o.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+            }
             return this;
         }
 
@@ -196,13 +196,14 @@ public final class Changes {
             if (o.entrySet().size() == 0) {
                 o = new JsonObject();
                 o.add("fieldName", new JsonPrimitive(field));
-                o.add("oldValue", oldValue);
-                //o.add("newValue", new JsonPrimitive("NA"));
                 changes.jsonArray.add(o);
-            } else {
-                o.add("oldValue", oldValue);
             }
 
+            if (oldValue == null || oldValue.isJsonPrimitive()) {
+                o.add("oldValue", oldValue);
+            } else {
+                o.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+            }
             return this;
         }
 
