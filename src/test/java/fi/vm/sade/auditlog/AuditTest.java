@@ -206,7 +206,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
-        //assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
+        assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
         assertNull(Util.getJsonElementByPath(r, "changes.kenttä.newValue"));
     }
 
@@ -287,8 +287,8 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String truncatedString1 = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
-        String truncatedString2 = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
+        String truncatedString1 = Util.getJsonElementByPath(r, "changes.longString.newValue").getAsString();
+        String truncatedString2 = Util.getJsonElementByPath(r, "changes.array.newValue").getAsString();
         assertEquals(truncatedString1, truncatedString2);
     }
 
