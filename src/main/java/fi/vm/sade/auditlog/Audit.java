@@ -28,6 +28,7 @@ public class Audit {
     private final Logger logger;
     private final String serviceName;
     private final String applicationType;
+    //private final Gson gson = new GsonBuilder().create();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     /**
@@ -107,9 +108,12 @@ public class Audit {
                     Changes changes) {
         JsonObject json = commonFields(TYPE_LOG);
         json.add("user", user.asJson());
-        json.addProperty("operation", operation.name());
+        try {
+            json.addProperty("operation", operation.name());
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Operation is required");
+        }
         json.add("target", target.asJson());
-        //json.add("changes", changes.asJson());
         json.add("changes", changes.asJsonArray());
         logger.log(gson.toJson(json));
     }

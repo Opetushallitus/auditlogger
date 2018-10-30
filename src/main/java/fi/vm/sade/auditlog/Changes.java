@@ -22,15 +22,12 @@ public final class Changes {
     private static final Gson gson = new Gson();
     private static final JsonPatchFactory jsonPatchFactory = new JsonPatchFactory();
 
-    //private JsonObject json = new JsonObject();
     private JsonArray jsonArray = new JsonArray();
 
     private Changes() { }
 
     public static <T> Changes addedDto(T dto) {
-        //TODO: halutaanko fieldName näihin?!
         return new Changes.Builder().added(gson.toJsonTree(dto)).build();
-        //return new Changes.Builder().added("change", gson.toJsonTree(dto)).build();
     }
 
     public static <T> Changes updatedDto(T dtoAfter, T dtoBefore) {
@@ -40,13 +37,8 @@ public final class Changes {
     }
 
     public static <T> Changes deleteDto(T dto) {
-        //TODO: halutaanko fieldName näihin?!
         return new Changes.Builder().removed(gson.toJsonTree(dto)).build();
     }
-
-    //public JsonObject asJson() {
-    //    return this.json;
-    //}
 
     public JsonArray asJsonArray() {
         return this.jsonArray;
@@ -62,7 +54,6 @@ public final class Changes {
             Changes r = this.changes;
             this.changes = new Changes();
             traverseAndTruncate(r.jsonArray);
-            //traverseAndTruncate(r.json);
             return r;
         }
 
@@ -71,37 +62,14 @@ public final class Changes {
                     newValue == null ? null : new JsonPrimitive(newValue));
         }
 
-/*
-        public Builder added(JsonElement newValue) {
-            if (!newValue.isJsonNull()) {
-                changes.json.add("newValue", new JsonPrimitive(toJsonString(newValue)));
-            }
-            return this;
-        }
-*/
         public Builder added(JsonElement newValue) {
             if (!newValue.isJsonNull()) {
                 JsonObject j = new JsonObject();
-                //j.add("fieldName", new JsonPrimitive("NA"));
-                //j.add("oldValue", new JsonPrimitive("NA"));
                 j.add("newValue", new JsonPrimitive(toJsonString(newValue)));
                 changes.jsonArray.add(j);
             }
             return this;
         }
-/*        public Builder added(String field, JsonElement newValue) {
-            if (field == null) {
-                throw new IllegalArgumentException("Field name is required");
-            }
-            JsonObject o = changes.json.getAsJsonObject(field);
-            if (o == null) {
-                o = new JsonObject();
-                changes.json.add(field, o);
-            }
-            o.add("newValue", newValue);
-            return this;
-        }
-*/
 
         public Builder added(String field, JsonElement newValue) {
             if (field == null) {
@@ -144,40 +112,14 @@ public final class Changes {
                     oldValue == null ? null : new JsonPrimitive(oldValue));
         }
 
-/*
-        public Builder removed(JsonElement oldValue) {
-            if (!oldValue.isJsonNull()) {
-                changes.json.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
-            }
-            return this;
-        }
-*/
-
         public Builder removed(JsonElement oldValue) {
             if (!oldValue.isJsonNull()) {
                 JsonObject j = new JsonObject();
-                //j.add("fieldName", new JsonPrimitive("NA"));
                 j.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
-                //j.add("newValue", new JsonPrimitive("NA"));
                 changes.jsonArray.add(j);
             }
             return this;
         }
-
-/*
-        public Builder removed(String field, JsonElement oldValue) {
-            if (field == null) {
-                throw new IllegalArgumentException("Field name is required");
-            }
-            JsonObject o = changes.json.getAsJsonObject(field);
-            if (o == null) {
-                o = new JsonObject();
-                changes.json.add(field, o);
-            }
-            o.add("oldValue", oldValue);
-            return this;
-        }
-*/
 
         public Builder removed(String field, JsonElement oldValue) {
             if (field == null) {
@@ -207,7 +149,6 @@ public final class Changes {
             return this;
         }
 
-
         public Builder removed(JsonObject oldValues) {
             if (oldValues != null) {
                 for (Map.Entry<String, JsonElement> entry : oldValues.entrySet()) {
@@ -223,20 +164,6 @@ public final class Changes {
                     oldValue == null ? null : new JsonPrimitive(oldValue),
                     newValue == null ? null : new JsonPrimitive(newValue));
         }
-/*
-        public Builder updated(String field, JsonElement oldValue, JsonElement newValue) {
-            if (field == null) {
-                throw new IllegalArgumentException("Field name is required");
-            }
-            if (hasChange(oldValue, newValue)) {
-                JsonObject o = new JsonObject();
-                o.add("oldValue", oldValue);
-                o.add("newValue", newValue);
-                changes.json.add(field, o);
-            }
-            return this;
-        }
-*/
 
         public Builder updated(String field, JsonElement oldValue, JsonElement newValue) {
             if (field == null) {

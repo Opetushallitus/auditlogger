@@ -51,6 +51,7 @@ public class AuditTest {
     public void initMock() {
         when(clock.wallClockTime()).thenReturn(bootTime);
         audit = new Audit(logger, "test", OPPIJA, hostname, heartbeatDaemon, clock);
+        when(op.name()).thenReturn("OP");
     }
 
     @Test
@@ -94,11 +95,16 @@ public class AuditTest {
 
     @Test
     public void operation() {
-        when(op.name()).thenReturn("OP");
         audit.log(user, op, target, new Changes.Builder().build());
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("OP", r.get("operation").getAsString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void noOperation() {
+        op = null;
+        audit.log(user, op, target, new Changes.Builder().build());
     }
 
     @Test
