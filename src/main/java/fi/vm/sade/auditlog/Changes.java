@@ -264,9 +264,12 @@ public final class Changes {
     }
 
     private static String toJsonString(JsonElement element) {
-        if (element.isJsonPrimitive() || element.isJsonNull()) {
+        if (element.isJsonPrimitive()) {
             return element.getAsString();
-        } else {
+        } else if (element.isJsonNull()) {
+            return element.toString();
+        }
+        else {
             return gson.toJson(element);
         }
     }

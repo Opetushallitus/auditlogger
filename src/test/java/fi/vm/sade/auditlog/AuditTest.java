@@ -125,7 +125,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
-        assertNull(Util.getJsonElementByPath(r, "changes.newValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.newValue").toString());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
-        assertNull(Util.getJsonElementByPath(r, "changes.newValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.newValue").toString());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class AuditTest {
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
         assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.newValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.oldValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.oldValue").toString());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class AuditTest {
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
         assertEquals("{\"nestedKey\":\"uusiArvo\"}", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.oldValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").toString());
     }
 
     @Test
@@ -178,7 +178,7 @@ public class AuditTest {
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
         assertEquals("uusiArvo", Util.getJsonElementByPath(r, "changes.kenttä.newValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.oldValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").toString());
     }
 
     @Test
@@ -201,7 +201,7 @@ public class AuditTest {
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
         assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.newValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.kenttä.newValue").toString());
     }
 
     @Test
@@ -213,7 +213,7 @@ public class AuditTest {
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         JsonArray changes = r.getAsJsonArray("changes");
         assertEquals("vanhaArvo", Util.getJsonElementByPath(r, "changes.kenttä.oldValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.kenttä.newValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.kenttä.newValue").toString());
     }
 
     @Test
@@ -331,7 +331,7 @@ public class AuditTest {
         verify(logger, times(1)).log(msgCaptor.capture());
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertNull(Util.getJsonElementByPath(r, "changes.nestedDtoWithNumberString.oldValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.nestedDtoWithNumberString.oldValue").toString());
         String escapedJsonString = gson.toJson(gson.toJsonTree(changedDtoWithNumberString.nestedDtoWithNumberString).toString());
         assertEquals(escapedJsonString, Util.getJsonElementByPath(r, "changes.nestedDtoWithNumberString.newValue").toString());
     }
@@ -361,7 +361,7 @@ public class AuditTest {
 
         JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
         assertEquals("Similarly, a more moderate length string this time.", Util.getJsonElementByPath(r, "changes.array.0.oldValue").getAsString());
-        assertNull(Util.getJsonElementByPath(r, "changes.array.0.newValue"));
+        assertEquals("null", Util.getJsonElementByPath(r, "changes.array.0.newValue").toString());
     }
 
     @Test

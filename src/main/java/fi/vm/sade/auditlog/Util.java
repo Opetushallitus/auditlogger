@@ -25,7 +25,7 @@ public class Util {
 
             if (result == null) {
                 result = JsonNull.INSTANCE;
-                break;
+                return result;
             }
 
             if (result.isJsonObject()) {
@@ -35,21 +35,26 @@ public class Util {
                     int ix = Integer.valueOf(key);
                     result = result.getAsJsonArray().get(ix);
                 } catch (NumberFormatException e) {
-                    for(int i = 0; i < result.getAsJsonArray().size(); i++) {
+                    for (int i = 0; i < result.getAsJsonArray().size(); i++) {
                         JsonObject j = result.getAsJsonArray().get(i).getAsJsonObject();
                         if (j.has(key) && j.has(lastKey)) {
                             result = j.get(lastKey);
-                            break;
+                            return result;
                         }
                     }
                 }
-            } else break;
+            } else {
+                return result;
+            }
 
         }
-        if (result != null && result.isJsonPrimitive()) {
-           return result;
-        } else {
-            return null;
+        if (result == null) {
+            return JsonNull.INSTANCE;
         }
+        if (result.isJsonPrimitive()) {
+            return result;
+        }
+        result = JsonNull.INSTANCE;
+        return result;
     }
 }
