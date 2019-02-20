@@ -1,3 +1,11 @@
+### HOX!
+
+Tämä dokkari on hieman vanhentunut; edellisen päivityksen yhteydessä dokumentointi on unohtunut. Katso mieluummin mallia näistä:
+
+ * https://github.com/Opetushallitus/valinta-sharedutils/blob/5f7c3aafd5595c9571f2a6ed78da6c15e2ebfba0/src/main/java/fi/vm/sade/sharedutils/AuditLog.java#L25-L36
+ * https://github.com/Opetushallitus/valintalaskentakoostepalvelu/blob/b6e0da229515820b18bfd817b12dab0915c33c63/src/main/java/fi/vm/sade/valinta/kooste/pistesyotto/service/PistesyottoExternalTuontiService.java#L347-L353
+
+
 ### Auditlogger
 
 Auditlogikomponentti logitukseen. Logittaa syslogiin ja slf4j-apiin.
