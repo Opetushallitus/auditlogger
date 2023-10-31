@@ -28,11 +28,16 @@ import java.util.Date;
 public class AuditTest {
     private Gson gson = new Gson();
     private Audit audit;
-    @Mock private Logger logger;
-    @Mock private HeartbeatDaemon heartbeatDaemon;
-    @Mock private Clock clock;
-    @Mock private Operation op;
-    @Captor private ArgumentCaptor<String> msgCaptor;
+    @Mock
+    private Logger logger;
+    @Mock
+    private HeartbeatDaemon heartbeatDaemon;
+    @Mock
+    private Clock clock;
+    @Mock
+    private Operation op;
+    @Captor
+    private ArgumentCaptor<String> msgCaptor;
 
     private final Date bootTime = new Date();
     private final String hostname = "hostname";
@@ -45,7 +50,8 @@ public class AuditTest {
     private AuditTestDto dto = new AuditTestDto();
     private AuditTestDtoWithNumberString dtoWithNumberString = new AuditTestDtoWithNumberString();
 
-    public AuditTest() throws UnknownHostException, GSSException { }
+    public AuditTest() throws UnknownHostException, GSSException {
+    }
 
     @Before
     public void initMock() {
@@ -259,7 +265,7 @@ public class AuditTest {
 
     @Test
     public void truncatesLongField() {
-        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
+        assert (gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
 
         audit.log(user, op, target, Changes.addedDto(dto));
         verify(logger, times(1)).log(msgCaptor.capture());
@@ -274,7 +280,7 @@ public class AuditTest {
 
     @Test
     public void truncatesLongArrayElement() {
-        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
+        assert (gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
 
         audit.log(user, op, target, Changes.addedDto(dto));
         verify(logger, times(1)).log(msgCaptor.capture());
@@ -354,7 +360,7 @@ public class AuditTest {
     public void removalFromArrayGetsLoggedCorrectly() {
         dto = new AuditTestDto(false);
         AuditTestDto changedDto = new AuditTestDto(false);
-        changedDto.array = new String[] {};
+        changedDto.array = new String[]{};
 
         audit.log(user, op, target, Changes.updatedDto(changedDto, dto));
         verify(logger, times(1)).log(msgCaptor.capture());
@@ -392,6 +398,29 @@ public class AuditTest {
         assertEquals(new JsonPrimitive(gson.toJson(dtoWithNumberString)), Util.getJsonElementByPath(r, "changes.oldValue").getAsJsonPrimitive());
     }
 
+    @Test
+    public void withChangeInArrayOfObjects() {
+        JsonObject before = new JsonObject();
+        JsonObject after = new JsonObject();
+
+        JsonObject objWithNilValue = new JsonObject();
+        objWithNilValue.addProperty("x", (String) null);
+        JsonObject objWithPrimitiveValue = new JsonObject();
+        objWithPrimitiveValue.addProperty("x", 1);
+
+        JsonArray xs = new JsonArray();
+        xs.add(objWithNilValue);
+        xs.add(objWithNilValue);
+
+        JsonArray ys = new JsonArray();
+        ys.add(objWithNilValue);
+        ys.add(objWithPrimitiveValue);
+
+        before.add("a", xs);
+        after.add("a", ys);
+        Changes.updatedDto(after, before);
+    }
+
     private static String createLongString() {
         int length = 33000;
         StringBuilder sb = new StringBuilder();
@@ -405,13 +434,13 @@ public class AuditTest {
         public String longString = "Not that long string that it would be truncated.";
         public String shortString = "bee";
         public int number = 99;
-        public String[] array = new String[] { "Similarly, a more moderate length string this time." };
+        public String[] array = new String[]{"Similarly, a more moderate length string this time."};
         public AuditTestDto nestedDto = null;
 
         public AuditTestDto(boolean withLongStringsThatNeedToBeTruncated) {
             if (withLongStringsThatNeedToBeTruncated) {
                 longString = createLongString();
-                array = new String[] { createLongString() };
+                array = new String[]{createLongString()};
             }
         }
 
@@ -424,13 +453,13 @@ public class AuditTest {
         public String longString = "Not that long string that it would be truncated.";
         public String shortString = "bee";
         public String number = "99";
-        public String[] array = new String[] { "Similarly, a more moderate length string this time." };
+        public String[] array = new String[]{"Similarly, a more moderate length string this time."};
         public AuditTestDtoWithNumberString nestedDtoWithNumberString = null;
 
         public AuditTestDtoWithNumberString(boolean withLongStringsThatNeedToBeTruncated) {
             if (withLongStringsThatNeedToBeTruncated) {
                 longString = createLongString();
-                array = new String[] { createLongString() };
+                array = new String[]{createLongString()};
             }
         }
 
