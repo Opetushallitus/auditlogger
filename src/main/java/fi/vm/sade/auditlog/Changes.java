@@ -182,6 +182,7 @@ public final class Changes {
             traverseAndTruncate(afterJson);
             traverseAndTruncate(beforeJson);
             JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
+            JsonElement current = beforeJson;
             for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
                 AbsOperation absOperation = it.next();
                 String operation = absOperation.getOperationName();
@@ -194,19 +195,19 @@ public final class Changes {
                         break;
                     }
                     case "remove": {
-                        JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyPath);
+                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyPath);
                         removed(prettyPath, toJsonString(oldValue));
                         break;
                     }
                     case "replace": {
-                        JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyPath);
+                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyPath);
                         JsonElement newValue = ((ReplaceOperation) absOperation).data;
                         updated(prettyPath, toJsonString(oldValue), toJsonString(newValue));
                         break;
                     }
                     case "move": {
                         String prettyFromPath = prettify(((MoveOperation) absOperation).from);
-                        JsonElement oldValue = Util.getJsonElementByPath(beforeJson, prettyFromPath);
+                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyFromPath);
                         removed(prettyFromPath, toJsonString(oldValue));
 
                         JsonElement newValue = Util.getJsonElementByPath(afterJson, prettyPath);
@@ -216,6 +217,7 @@ public final class Changes {
                     default: throw new IllegalArgumentException(String.format("Unknown operation %s in %s . before: %s . after: %s"
                             , operation, absOperation.path, beforeJson, afterJson));
                 }
+                current = absOperation.apply(current);
             }
             return this;
         }
