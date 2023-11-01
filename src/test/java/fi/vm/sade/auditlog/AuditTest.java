@@ -419,6 +419,25 @@ public class AuditTest {
         before.add("a", xs);
         after.add("a", ys);
         Changes.updatedDto(after, before);
+        // before: { a: [{x: null}, {x: null}]}
+        // after:  { a: [{x: null}, {x: 1}   ]}
+        // --->
+        // Should result in changes as follow:
+        // "changes": [{"fieldName": "a.1", "newValue": {x: 1}, "oldValue": {x: null}]
+
+        audit.log(user, op, target, Changes.updatedDto(after, before));
+        verify(logger, times(1)).log(msgCaptor.capture());
+
+        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
+        JsonArray changes = r.getAsJsonObject().get("changes").getAsJsonArray();
+        assertEquals(1, changes.size());
+
+        JsonObject change = changes.get(0).getAsJsonObject();
+        assertEquals("a.1", change.get("fieldName").getAsString());
+        assertEquals(objWithPrimitiveValue, change.get("newValue"));
+        // An object containing a key with null value gets converted to just null
+        // when retrieved with fi.vm.sade.auditlog.Util.getJsonElementByPath
+        assertTrue(change.get("oldValue").isJsonNull());
     }
 
     private static String createLongString() {
