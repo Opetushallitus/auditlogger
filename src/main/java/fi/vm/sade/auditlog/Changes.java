@@ -181,7 +181,7 @@ public final class Changes {
         private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
             traverseAndTruncate(afterJson);
             traverseAndTruncate(beforeJson);
-            JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
+            JsonPatch patchArray = withCombinedPatchOps(jsonPatchFactory.create(beforeJson, afterJson));
             JsonElement current = beforeJson;
             for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
                 AbsOperation absOperation = it.next();
@@ -275,4 +275,75 @@ public final class Changes {
             return gson.toJson(element);
         }
     }
+
+    private static JsonPatch withCombinedPatchOps(JsonPatch original) {
+        // JsonPatchFactory occasionally returns suboptimal patches,
+        // where for example a replace of an array element can be expressed
+        // as consecutive add and remove (or the other way around) to the same index.
+        // Try to combine pairs of such operations into one.
+
+        // Note: this helper is not designed to handle all possible cases,
+        // just the more obvious cases to begin with!
+        // This means only combining *consecutive* adds and removes to the same
+        // *leaf* element of a path.
+        JsonPatch modified = new JsonPatch();
+        AbsOperation prev = null;
+        for (Iterator<AbsOperation> it = original.iterator(); it.hasNext(); ) {
+            AbsOperation current = it.next();
+            if (prev != null) {
+                AbsOperation combined = combine(prev, current);
+                if (combined != null) {
+                    // Add combined operation into patch, discard previous and current operation.
+                    modified.add(combined);
+                    current = null;
+                }
+            }
+            prev = current;
+        }
+        if (prev != null) {
+            modified.add(prev);
+        }
+        return modified;
+    }
+
+    private static AbsOperation combine(AbsOperation a, AbsOperation b) {
+        try {
+            String aOp = a.getOperationName();
+            String bOp = b.getOperationName();
+            boolean removeThenAdd = "remove".equals(aOp) && "add".equals(bOp);
+            boolean addThenRemove = "add".equals(aOp) && "remove".equals(bOp);
+            boolean compatibleOperations = removeThenAdd || addThenRemove;
+            if (!compatibleOperations) {
+                return null;
+            }
+            String[] aPath = prettify(a.path).split("\\.");
+            String[] bPath = prettify(b.path).split("\\.");
+            if (aPath.length != bPath.length) {
+                return null;
+            }
+            // Ensure paths differ at most at last position
+            for (int i = 0; i < aPath.length - 1; i++) {
+                if (!aPath[i].equals(bPath[i])) {
+                    return null;
+                }
+            }
+            // Only attempt to combine operations if they modify the same array index
+            int aLeafIdx = Integer.parseInt(aPath[aPath.length - 1]);
+            int bLeafIdx = Integer.parseInt(bPath[bPath.length - 1]);
+            if (removeThenAdd && aLeafIdx == bLeafIdx) {
+                AddOperation addOp = (AddOperation)b;
+                return new ReplaceOperation(addOp.path, addOp.data);
+            } else if (addThenRemove && aLeafIdx == bLeafIdx - 1) {
+                // Adding to array shifts elements after added position to right by 1.
+                // Only combine the add+remove into a replace if the remove targets
+                // the element that used to be at the same index as the addition.
+                AddOperation addOp = (AddOperation)a;
+                return new ReplaceOperation(addOp.path, addOp.data);
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
+
