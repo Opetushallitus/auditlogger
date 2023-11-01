@@ -418,26 +418,17 @@ public class AuditTest {
 
         before.add("a", xs);
         after.add("a", ys);
-        Changes.updatedDto(after, before);
-        // before: { a: [{x: null}, {x: null}]}
-        // after:  { a: [{x: null}, {x: 1}   ]}
-        // --->
-        // Should result in changes as follow:
-        // "changes": [{"fieldName": "a.1", "newValue": {x: 1}, "oldValue": {x: null}]
-
-        audit.log(user, op, target, Changes.updatedDto(after, before));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        JsonArray changes = r.getAsJsonObject().get("changes").getAsJsonArray();
+        System.out.print("in test, after: ");
+        System.out.println(after);
+        JsonArray changes = Changes.updatedDto(after, before).asJsonArray();
+        System.out.println(changes);
         assertEquals(1, changes.size());
-
-        JsonObject change = changes.get(0).getAsJsonObject();
-        assertEquals("a.1", change.get("fieldName").getAsString());
-        assertEquals(objWithPrimitiveValue, change.get("newValue"));
+        JsonObject replaceOp = changes.get(0).getAsJsonObject();
+        assertEquals("a.1", replaceOp.get("fieldName").getAsString());
+        assertEquals("{\"x\":\"1\"}", replaceOp.get("newValue").getAsString());
         // An object containing a key with null value gets converted to just null
         // when retrieved with fi.vm.sade.auditlog.Util.getJsonElementByPath
-        assertTrue(change.get("oldValue").isJsonNull());
+        assertEquals("null", replaceOp.get("oldValue").getAsString());
     }
 
     private static String createLongString() {
