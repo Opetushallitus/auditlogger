@@ -181,7 +181,7 @@ public final class Changes {
         private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
             traverseAndTruncate(afterJson);
             traverseAndTruncate(beforeJson);
-            JsonPatch patchArray = withCombinedPatchOps(jsonPatchFactory.create(beforeJson, afterJson));
+            JsonPatch patchArray = withCombinedPatchOps(beforeJson, jsonPatchFactory.create(beforeJson, afterJson));
             JsonElement current = beforeJson;
             for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
                 AbsOperation absOperation = it.next();
@@ -276,7 +276,7 @@ public final class Changes {
         }
     }
 
-    private static JsonPatch withCombinedPatchOps(JsonPatch original) {
+    private static JsonPatch withCombinedPatchOps(JsonElement json, JsonPatch patch) {
         // JsonPatchFactory occasionally returns suboptimal patches,
         // where for example a replace of an array element can be expressed
         // as consecutive add and remove (or the other way around) to the same index.
@@ -286,27 +286,31 @@ public final class Changes {
         // just the more obvious cases to begin with!
         // This means only combining *consecutive* adds and removes to the same
         // *leaf* element of a path.
-        JsonPatch modified = new JsonPatch();
-        AbsOperation prev = null;
-        for (Iterator<AbsOperation> it = original.iterator(); it.hasNext(); ) {
-            AbsOperation current = it.next();
-            if (prev != null) {
-                AbsOperation combined = combine(prev, current);
-                if (combined != null) {
-                    // Add combined operation into patch, discard previous and current operation.
-                    modified.add(combined);
-                    current = null;
+        try {
+            JsonPatch modified = new JsonPatch();
+            AbsOperation prev = null;
+            for (Iterator<AbsOperation> it = patch.iterator(); it.hasNext(); ) {
+                AbsOperation current = it.next();
+                if (prev != null) {
+                    AbsOperation combined = combine(json, prev, current);
+                    if (combined != null) {
+                        // Add combined operation into patch, discard previous and current operation.
+                        modified.add(combined);
+                        current = null;
+                    }
                 }
+                prev = current;
             }
-            prev = current;
+            if (prev != null) {
+                modified.add(prev);
+            }
+            return modified;
+        } catch (Exception e) {
+            return patch;
         }
-        if (prev != null) {
-            modified.add(prev);
-        }
-        return modified;
     }
 
-    private static AbsOperation combine(AbsOperation a, AbsOperation b) {
+    private static AbsOperation combine(JsonElement json, AbsOperation a, AbsOperation b) {
         try {
             String aOp = a.getOperationName();
             String bOp = b.getOperationName();
@@ -316,20 +320,28 @@ public final class Changes {
             if (!compatibleOperations) {
                 return null;
             }
-            String[] aPath = prettify(a.path).split("\\.");
-            String[] bPath = prettify(b.path).split("\\.");
-            if (aPath.length != bPath.length) {
+            String aPath = prettify(a.path);
+            String bPath = prettify(b.path);
+
+            // Ensure paths share same prefix up to leaf
+            int idxOfLastPeriod = aPath.lastIndexOf('.');
+            if (bPath.lastIndexOf('.') != idxOfLastPeriod) {
                 return null;
             }
-            // Ensure paths differ at most at last position
-            for (int i = 0; i < aPath.length - 1; i++) {
-                if (!aPath[i].equals(bPath[i])) {
-                    return null;
-                }
+            String pathToParentOfLeaf = idxOfLastPeriod > 0 ? aPath.substring(0, idxOfLastPeriod) : null;
+            if (pathToParentOfLeaf != null && !pathToParentOfLeaf.equals(bPath.substring(0, idxOfLastPeriod))) {
+                return null;
+            }
+            // Ensure path leaves point to array elements
+            JsonElement parent = pathToParentOfLeaf == null ? json : Util.getJsonElementByPath(json, pathToParentOfLeaf, true);
+            if (!parent.isJsonArray()) {
+                return null;
             }
             // Only attempt to combine operations if they modify the same array index
-            int aLeafIdx = Integer.parseInt(aPath[aPath.length - 1]);
-            int bLeafIdx = Integer.parseInt(bPath[bPath.length - 1]);
+            String aLeafPart = pathToParentOfLeaf == null ? aPath : aPath.substring(idxOfLastPeriod + 1);
+            String bLeafPart = pathToParentOfLeaf == null ? bPath : bPath.substring(idxOfLastPeriod + 1);
+            int aLeafIdx = Integer.parseInt(aLeafPart);
+            int bLeafIdx = Integer.parseInt(bLeafPart);
             if (removeThenAdd && aLeafIdx == bLeafIdx) {
                 AddOperation addOp = (AddOperation)b;
                 return new ReplaceOperation(addOp.path, addOp.data);
