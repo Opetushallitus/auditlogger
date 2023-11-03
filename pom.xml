@@ -4,7 +4,7 @@
     <groupId>fi.vm.sade</groupId>
     <artifactId>auditlogger</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1-HOTFIX</version>
+    <version>0.0.2-HOTFIX</version>
     <name>auditlogger</name>
 
     <properties>
