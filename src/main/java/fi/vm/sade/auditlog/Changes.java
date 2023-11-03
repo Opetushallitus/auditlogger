@@ -297,7 +297,14 @@ public final class Changes {
                         // Add combined operation into patch, discard previous and current operation.
                         modified.add(combined);
                         current = null;
+                        prev = null;
                     }
+                }
+                if (prev != null && current != null) {
+                    // If both prev and current are non-null, they could not be combined within the previous
+                    // if-block. We must then add prev to the patch but hold on to current for the next iteration,
+                    // if applicable.
+                    modified.add(prev);
                 }
                 prev = current;
             }
