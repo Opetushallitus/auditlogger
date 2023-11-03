@@ -399,7 +399,7 @@ public class AuditTest {
     }
 
     @Test
-    public void withChangeInArrayOfObjects() {
+    public void arrayAddAndRemoveAreCombinedIntoReplace() {
         JsonObject before = new JsonObject();
         JsonObject after = new JsonObject();
 
@@ -418,10 +418,7 @@ public class AuditTest {
 
         before.add("a", xs);
         after.add("a", ys);
-        System.out.print("in test, after: ");
-        System.out.println(after);
         JsonArray changes = Changes.updatedDto(after, before).asJsonArray();
-        System.out.println(changes);
         assertEquals(1, changes.size());
         JsonObject replaceOp = changes.get(0).getAsJsonObject();
         assertEquals("a.1", replaceOp.get("fieldName").getAsString());
