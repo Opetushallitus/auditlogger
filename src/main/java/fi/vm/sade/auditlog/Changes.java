@@ -181,7 +181,12 @@ public final class Changes {
         private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
             traverseAndTruncate(afterJson);
             traverseAndTruncate(beforeJson);
-            JsonPatch patchArray = withCombinedPatchOps(beforeJson, jsonPatchFactory.create(beforeJson, afterJson));
+            JsonPatch originalPatch = jsonPatchFactory.create(beforeJson, afterJson);
+            System.out.print("originalPatch: ");
+            System.out.println(originalPatch);
+            JsonPatch patchArray = withCombinedPatchOps(beforeJson, originalPatch);
+            System.out.print("combinedPatch: ");
+            System.out.println(patchArray);
             JsonElement current = beforeJson;
             for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
                 AbsOperation absOperation = it.next();

@@ -28,7 +28,6 @@ public class Audit {
     private final Logger logger;
     private final String serviceName;
     private final String applicationType;
-    //private final Gson gson = new GsonBuilder().create();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     /**
