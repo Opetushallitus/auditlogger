@@ -258,57 +258,6 @@ public class AuditTest {
     }
 
     @Test
-    public void truncatesLongField() {
-        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
-
-        audit.log(user, op, target, Changes.addedDto(dto));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
-        assertTrue(truncatedString.length() < dto.longString.length());
-        assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
-        assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
-    }
-
-    @Test
-    public void truncatesLongArrayElement() {
-        assert(gson.toJsonTree(dto).toString().length() > Audit.MAX_FIELD_LENGTH);
-
-        audit.log(user, op, target, Changes.addedDto(dto));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        assertEquals("log", r.get("type").getAsString());
-        String truncatedString = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
-        assertTrue(truncatedString.length() < dto.longString.length());
-        assertTrue(truncatedString.length() < Audit.MAX_FIELD_LENGTH);
-        assertTrue(r.toString().length() < Audit.MAX_FIELD_LENGTH);
-    }
-
-    @Test
-    public void truncatedStringsMatchForIdenticalInputs() {
-        audit.log(user, op, target, Changes.addedDto(dto));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String truncatedString1 = Util.getJsonElementByPath(r, "changes.longString.newValue").getAsString();
-        String truncatedString2 = Util.getJsonElementByPath(r, "changes.array.newValue").getAsString();
-        assertEquals(truncatedString1, truncatedString2);
-    }
-
-    @Test
-    public void truncateChangesWithLongString() {
-        audit.log(user, op, target, Changes.addedDto(dto));
-        verify(logger, times(1)).log(msgCaptor.capture());
-
-        JsonObject r = gson.fromJson(msgCaptor.getValue(), JsonObject.class);
-        String loggedInt = Util.getJsonElementByPath(r, "changes.newValue").getAsString();
-        assertEquals("1258294166", loggedInt);
-    }
-
-    @Test
     public void testJsonPatchDiff() {
         AuditTestDto changedDto = new AuditTestDto();
         changedDto.shortString = "wasp";
@@ -408,8 +357,8 @@ public class AuditTest {
         public String[] array = new String[] { "Similarly, a more moderate length string this time." };
         public AuditTestDto nestedDto = null;
 
-        public AuditTestDto(boolean withLongStringsThatNeedToBeTruncated) {
-            if (withLongStringsThatNeedToBeTruncated) {
+        public AuditTestDto(boolean withLongStrings) {
+            if (withLongStrings) {
                 longString = createLongString();
                 array = new String[] { createLongString() };
             }
@@ -427,8 +376,8 @@ public class AuditTest {
         public String[] array = new String[] { "Similarly, a more moderate length string this time." };
         public AuditTestDtoWithNumberString nestedDtoWithNumberString = null;
 
-        public AuditTestDtoWithNumberString(boolean withLongStringsThatNeedToBeTruncated) {
-            if (withLongStringsThatNeedToBeTruncated) {
+        public AuditTestDtoWithNumberString(boolean withLongStrings) {
+            if (withLongStrings) {
                 longString = createLongString();
                 array = new String[] { createLongString() };
             }

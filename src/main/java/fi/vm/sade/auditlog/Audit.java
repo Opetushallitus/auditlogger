@@ -14,7 +14,6 @@ public class Audit {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     public static final String TYPE_ALIVE = "alive";
     private static final String TYPE_LOG = "log";
-    public static final int MAX_FIELD_LENGTH = 32766;
 
     static {
         SDF.setTimeZone(TimeZone.getTimeZone("Europe/Helsinki"));

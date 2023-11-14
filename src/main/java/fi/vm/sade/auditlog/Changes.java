@@ -1,6 +1,5 @@
 package fi.vm.sade.auditlog;
 
-import static fi.vm.sade.auditlog.Audit.MAX_FIELD_LENGTH;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -53,7 +52,6 @@ public final class Changes {
         public Changes build() {
             Changes r = this.changes;
             this.changes = new Changes();
-            traverseAndTruncate(r.jsonArray);
             return r;
         }
 
@@ -179,8 +177,6 @@ public final class Changes {
             return this;
         }
         private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
-            traverseAndTruncate(afterJson);
-            traverseAndTruncate(beforeJson);
             JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
             for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
                 AbsOperation absOperation = it.next();
@@ -222,40 +218,6 @@ public final class Changes {
 
         private boolean hasChange(JsonElement oldValue, JsonElement newValue) {
             return null == oldValue ? null != newValue : !oldValue.equals(newValue);
-        }
-
-        private void traverseAndTruncate(JsonElement data) {
-            if (data.isJsonObject()) {
-                JsonObject object = data.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-                    String fieldName = entry.getKey();
-                    JsonElement child = entry.getValue();
-                    if (child.isJsonPrimitive()) {
-                        object.addProperty(fieldName, truncate(toJsonString(child)));
-                    } else {
-                        traverseAndTruncate(child);
-                    }
-                }
-            } else if (data.isJsonArray()) {
-                JsonArray array = data.getAsJsonArray();
-                for (int i = 0; i < array.size(); i++) {
-                    JsonElement child = array.get(i);
-                    if (child.isJsonPrimitive()) {
-                        array.set(i, new JsonPrimitive(truncate(toJsonString(child))));
-                    } else {
-                        traverseAndTruncate(child);
-                    }
-                }
-            }
-        }
-
-        private String truncate(String data) {
-            int maxLength = MAX_FIELD_LENGTH / 10; // Assume only a small number of fields can be extremely long
-            if (data.length() <= maxLength) {
-                return data;
-            } else {
-                return Integer.toString(data.hashCode());
-            }
         }
     }
 
