@@ -2,6 +2,7 @@ package fi.vm.sade.auditlog;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +28,6 @@ public class Audit {
     private final Logger logger;
     private final String serviceName;
     private final String applicationType;
-    //private final Gson gson = new GsonBuilder().create();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     /**
@@ -101,10 +101,7 @@ public class Audit {
         logger.log(gson.toJson(json));
     }
 
-    public void log(User user,
-                    Operation operation,
-                    Target target,
-                    Changes changes) {
+    public void log(User user, Operation operation, Target target, JsonArray changes) {
         JsonObject json = commonFields(TYPE_LOG);
         json.add("user", user.asJson());
         try {
@@ -113,7 +110,14 @@ public class Audit {
             throw new IllegalArgumentException("Operation is required");
         }
         json.add("target", target.asJson());
-        json.add("changes", changes.asJsonArray());
+        json.add("changes", changes);
         logger.log(gson.toJson(json));
+    }
+
+    public void log(User user,
+                    Operation operation,
+                    Target target,
+                    Changes changes) {
+        this.log(user, operation, target, changes.asJsonArray());
     }
 }
