@@ -2,7 +2,6 @@ package fi.vm.sade.auditlog;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 
 public class Util {
     /**
@@ -12,49 +11,31 @@ public class Util {
      *
      * @param json - a Gson JsonElement
      * @param path - a JSON path, e.g. a.b.c[2].d
-     * @return - a sub-element of json according to the given path
+     * @return - a sub-element of json according to the given `path` or
+     *           `JsonNull.INSTANCE` if no element can be found.
      */
     public static JsonElement getJsonElementByPath(JsonElement json, String path) {
-        String[] parts = path.split("\\.|\\[|\\]");
-        JsonElement result = json;
-        String lastKey = parts[parts.length-1];
-        for (String key : parts) {
-            key = key.trim();
-            if (key.isEmpty())
-                continue;
-
-            if (result == null) {
-                result = JsonNull.INSTANCE;
-                return result;
+        for (String key : path.split("\\.|\\[|\\]\\.|\\]")) {
+            if (json == null) {
+                return JsonNull.INSTANCE;
             }
 
-            if (result.isJsonObject()) {
-                result = result.getAsJsonObject().get(key);
-            } else if (result.isJsonArray()) {
+            if (json.isJsonObject()) {
+                json = json.getAsJsonObject().get(key);
+            } else if (json.isJsonArray()) {
                 try {
                     int ix = Integer.valueOf(key);
-                    result = result.getAsJsonArray().get(ix);
-                } catch (NumberFormatException e) {
-                    for (int i = 0; i < result.getAsJsonArray().size(); i++) {
-                        JsonObject j = result.getAsJsonArray().get(i).getAsJsonObject();
-                        if (j.has(key) && j.has(lastKey)) {
-                            result = j.get(lastKey);
-                            return result;
-                        }
-                    }
+                    json = json.getAsJsonArray().get(ix);
+                } catch (NumberFormatException|IndexOutOfBoundsException e) {
+                    return JsonNull.INSTANCE;
                 }
             } else {
-                return result;
+                // There is no `key` in `JsonPrimitive` or `JsonNull` so in this
+                // case the given `path` doesn't point to any `JsonElement`.
+                // Thus, we return `JsonNull.INSTANCE`.
+                return JsonNull.INSTANCE;
             }
-
         }
-        if (result == null) {
-            return JsonNull.INSTANCE;
-        }
-        if (result.isJsonPrimitive()) {
-            return result;
-        }
-        result = JsonNull.INSTANCE;
-        return result;
+        return (json == null) ? JsonNull.INSTANCE : json;
     }
 }
