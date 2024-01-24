@@ -191,22 +191,22 @@ public final class Changes {
                         break;
                     }
                     case "remove": {
-                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyPath);
+                        JsonElement oldValue = absOperation.path.navigate(current);
                         removed(prettyPath, toJsonString(oldValue));
                         break;
                     }
                     case "replace": {
-                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyPath);
+                        JsonElement oldValue = absOperation.path.navigate(current);
                         JsonElement newValue = ((ReplaceOperation) absOperation).data;
                         updated(prettyPath, toJsonString(oldValue), toJsonString(newValue));
                         break;
                     }
                     case "move": {
-                        String prettyFromPath = prettify(((MoveOperation) absOperation).from);
-                        JsonElement oldValue = Util.getJsonElementByPath(current, prettyFromPath);
-                        removed(prettyFromPath, toJsonString(oldValue));
+                        JsonPath fromPath = ((MoveOperation) absOperation).from;
+                        JsonElement oldValue = fromPath.navigate(current);
+                        removed(prettify(fromPath), toJsonString(oldValue));
 
-                        JsonElement newValue = Util.getJsonElementByPath(afterJson, prettyPath);
+                        JsonElement newValue = absOperation.path.navigate(afterJson);
                         added(prettyPath, newValue);
                         break;
                     }
