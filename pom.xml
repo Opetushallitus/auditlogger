@@ -4,7 +4,7 @@
     <groupId>fi.vm.sade</groupId>
     <artifactId>auditlogger</artifactId>
     <packaging>jar</packaging>
-    <version>9.2.5-SNAPSHOT</version>
+    <version>10.0.0-SNAPSHOT</version>
     <name>auditlogger</name>
 
     <properties>
@@ -13,17 +13,11 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson Feb, 2022-->
+        <!-- https://mvnrepository.com/artifact/com.github.java-json-tools/json-patch Jan, 2024-->
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.tananaev/json-patch Nov, 2020-->
-        <dependency>
-            <groupId>com.tananaev</groupId>
+            <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-patch</artifactId>
-            <version>1.2</version>
+            <version>1.13</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 Mar, 2021-->
         <dependency>

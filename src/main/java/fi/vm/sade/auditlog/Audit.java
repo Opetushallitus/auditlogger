@@ -1,9 +1,8 @@
 package fi.vm.sade.auditlog;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +27,7 @@ public class Audit {
     private final Logger logger;
     private final String serviceName;
     private final String applicationType;
-    private final Gson gson = new GsonBuilder().serializeNulls().create();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Create an Audit logger for service.
@@ -64,54 +63,55 @@ public class Audit {
         heartbeat.register(this);
     }
 
-    private JsonObject commonFields(String type) {
-        JsonObject json = new JsonObject();
+    private ObjectNode commonFields(String type) {
 
-        json.addProperty("version", VERSION);
-        json.addProperty("logSeq", logSeq.getAndIncrement());
-        json.addProperty("type", type);
+        ObjectNode json = mapper.createObjectNode();
+
+        json.put("version", VERSION);
+        json.put("logSeq", logSeq.getAndIncrement());
+        json.put("type", type);
 
         synchronized (SDF) {
-            json.addProperty("bootTime", SDF.format(this.bootTime));
-            json.addProperty("hostname", this.hostname);
-            json.addProperty("timestamp", SDF.format(clock.wallClockTime()));
+            json.put("bootTime", SDF.format(this.bootTime));
+            json.put("hostname", this.hostname);
+            json.put("timestamp", SDF.format(clock.wallClockTime()));
         }
 
-        json.addProperty("serviceName", serviceName);
-        json.addProperty("applicationType", applicationType);
+        json.put("serviceName", serviceName);
+        json.put("applicationType", applicationType);
 
         return json;
     }
 
     public void logStarted() {
-        JsonObject json = commonFields(TYPE_ALIVE);
-        json.addProperty("message", "started");
-        logger.log(gson.toJson(json));
+        ObjectNode json = commonFields(TYPE_ALIVE);
+        json.put("message", "started");
+        logger.log(json.toString());
     }
 
     public void logHeartbeat() {
-        JsonObject json = commonFields(TYPE_ALIVE);
-        json.addProperty("message", "alive");
-        logger.log(gson.toJson(json));
+        ObjectNode json = commonFields(TYPE_ALIVE);
+        json.put("message", "alive");
+        logger.log(json.toString());
     }
 
     public void logStopped() {
-        JsonObject json = commonFields(TYPE_ALIVE);
-        json.addProperty("message", "stopped");
-        logger.log(gson.toJson(json));
+        ObjectNode json = commonFields(TYPE_ALIVE);
+        json.put("message", "stopped");
+        logger.log(json.toString());
     }
 
-    public void log(User user, Operation operation, Target target, JsonArray changes) {
-        JsonObject json = commonFields(TYPE_LOG);
-        json.add("user", user.asJson());
+    public void log(User user, Operation operation, Target target, ArrayNode changes) {
+        ObjectNode json = commonFields(TYPE_LOG);
+        json.set("user", user.asJson());
         try {
-            json.addProperty("operation", operation.name());
+            json.put("operation", operation.name());
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Operation is required");
         }
-        json.add("target", target.asJson());
-        json.add("changes", changes);
-        logger.log(gson.toJson(json));
+        json.set("target", target.asJson());
+        json.set("changes", changes);
+        logger.log(json.toString());
     }
 
     public void log(User user,

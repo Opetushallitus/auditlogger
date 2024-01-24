@@ -1,47 +1,40 @@
 package fi.vm.sade.auditlog;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.tananaev.jsonpatch.JsonPatch;
-import com.tananaev.jsonpatch.JsonPatchFactory;
-import com.tananaev.jsonpatch.JsonPath;
-import com.tananaev.jsonpatch.operation.AbsOperation;
-import com.tananaev.jsonpatch.operation.AddOperation;
-import com.tananaev.jsonpatch.operation.MoveOperation;
-import com.tananaev.jsonpatch.operation.ReplaceOperation;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.github.fge.jsonpatch.diff.JsonDiff;
 
 import java.util.Iterator;
 import java.util.Map;
 
 public final class Changes {
-    public static final Changes EMPTY = new Changes.Builder().build();
-    private static final Gson gson = new Gson();
-    private static final JsonPatchFactory jsonPatchFactory = new JsonPatchFactory();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    private JsonArray jsonArray = new JsonArray();
+    private ArrayNode jsonArray = mapper.createArrayNode();
 
     private Changes() { }
 
     public static <T> Changes addedDto(T dto) {
-        return new Changes.Builder().added(gson.toJsonTree(dto)).build();
+        return new Changes.Builder().added(mapper.valueToTree(dto)).build();
     }
 
     public static <T> Changes updatedDto(T dtoAfter, T dtoBefore) {
-        JsonElement afterJson = gson.toJsonTree(dtoAfter);
-        JsonElement beforeJson = gson.toJsonTree(dtoBefore);
+        JsonNode afterJson = mapper.valueToTree(dtoAfter);
+        JsonNode beforeJson = mapper.valueToTree(dtoBefore);
         return new Changes.Builder().jsonDiffToChanges(beforeJson, afterJson).build();
     }
 
     public static <T> Changes deleteDto(T dto) {
-        return new Changes.Builder().removed(gson.toJsonTree(dto)).build();
+        return new Changes.Builder().removed(mapper.valueToTree(dto)).build();
     }
 
-    public JsonArray asJsonArray() {
+    public ArrayNode asJsonArray() {
         return this.jsonArray;
     }
+
     public static class Builder {
         private Changes changes;
 
@@ -57,48 +50,51 @@ public final class Changes {
 
         public Builder added(String field, String newValue) {
             return this.added(field,
-                    newValue == null ? null : new JsonPrimitive(newValue));
+                    newValue == null ? null : TextNode.valueOf(newValue));
         }
 
-        public Builder added(JsonElement newValue) {
-            if (!newValue.isJsonNull()) {
-                JsonObject j = new JsonObject();
-                j.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+        public Builder added(JsonNode newValue) {
+            if (!newValue.isNull()) {
+                ObjectNode j = mapper.createObjectNode();
+                j.put("newValue", newValue.asText());
                 changes.jsonArray.add(j);
             }
             return this;
         }
 
-        public Builder added(String field, JsonElement newValue) {
+        public Builder added(String field, JsonNode newValue) {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
 
-            JsonObject o = new JsonObject();
+            ObjectNode o = mapper.createObjectNode();
             for (int i = 0; i < changes.jsonArray.size(); i++) {
-                JsonObject j = changes.jsonArray.get(i).getAsJsonObject();
-                if (j.get("fieldName").equals(new JsonPrimitive(field))) {
+                ObjectNode j = (ObjectNode) changes.jsonArray.get(i);
+                if (j.get("fieldName").equals(TextNode.valueOf(field))) {
                     o = j;
                     break;
                 }
             }
 
-            if (o.entrySet().size() == 0) {
-                o = new JsonObject();
-                o.add("fieldName", new JsonPrimitive(field));
+            if (!o.elements().hasNext()) {
+                o = mapper.createObjectNode();
+                o.put("fieldName", field);
                 changes.jsonArray.add(o);
             }
-            if (newValue == null || newValue.isJsonPrimitive()) {
-                o.add("newValue", newValue);
+            if (newValue == null || newValue.isValueNode()) {
+                o.set("newValue", newValue);
             } else {
-                o.add("newValue", new JsonPrimitive(toJsonString(newValue)));
+                o.put("newValue", newValue.toString());
+
             }
             return this;
         }
 
-        public Builder added(JsonObject newValues) {
+        public Builder added(ObjectNode newValues) {
             if (newValues != null) {
-                for (Map.Entry<String, JsonElement> entry : newValues.entrySet()) {
+                Iterator<Map.Entry<String, JsonNode>> entries = newValues.fields();
+                while (entries.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = entries.next();
                     added(entry.getKey(), entry.getValue());
                 }
             }
@@ -107,49 +103,51 @@ public final class Changes {
 
         public Builder removed(String field, String oldValue) {
             return this.removed(field,
-                    oldValue == null ? null : new JsonPrimitive(oldValue));
+                    oldValue == null ? null : TextNode.valueOf(oldValue));
         }
 
-        public Builder removed(JsonElement oldValue) {
-            if (!oldValue.isJsonNull()) {
-                JsonObject j = new JsonObject();
-                j.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+        public Builder removed(JsonNode oldValue) {
+            if (!oldValue.isNull()) {
+                ObjectNode j = mapper.createObjectNode();
+                j.put("oldValue", oldValue.asText());
                 changes.jsonArray.add(j);
             }
             return this;
         }
 
-        public Builder removed(String field, JsonElement oldValue) {
+        public Builder removed(String field, JsonNode oldValue) {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
 
-            JsonObject o = new JsonObject();
+            ObjectNode o = mapper.createObjectNode();
             for(int i = 0; i < changes.jsonArray.size(); i++) {
-                JsonObject j = changes.jsonArray.get(i).getAsJsonObject();
-                if(j.get("fieldName").equals(new JsonPrimitive(field))) {
+                ObjectNode j = (ObjectNode) changes.jsonArray.get(i);
+                if(j.get("fieldName").equals(TextNode.valueOf(field))) {
                     o = j;
                     break;
                 }
             }
 
-            if (o.entrySet().size() == 0) {
-                o = new JsonObject();
-                o.add("fieldName", new JsonPrimitive(field));
+            if (!o.elements().hasNext()) {
+                o = mapper.createObjectNode();
+                o.put("fieldName", field);
                 changes.jsonArray.add(o);
             }
 
-            if (oldValue == null || oldValue.isJsonPrimitive()) {
-                o.add("oldValue", oldValue);
+            if (oldValue == null || oldValue.isValueNode()) {
+                o.set("oldValue", oldValue);
             } else {
-                o.add("oldValue", new JsonPrimitive(toJsonString(oldValue)));
+                o.put("oldValue", oldValue.toString());
             }
             return this;
         }
 
-        public Builder removed(JsonObject oldValues) {
+        public Builder removed(ObjectNode oldValues) {
             if (oldValues != null) {
-                for (Map.Entry<String, JsonElement> entry : oldValues.entrySet()) {
+                Iterator<Map.Entry<String, JsonNode>> entries = oldValues.fields();
+                while (entries.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = entries.next();
                     removed(entry.getKey(), entry.getValue());
                 }
             }
@@ -159,82 +157,70 @@ public final class Changes {
         public Builder updated(String field, String oldValue, String newValue) {
             return this.updated(
                     field,
-                    oldValue == null ? null : new JsonPrimitive(oldValue),
-                    newValue == null ? null : new JsonPrimitive(newValue));
+                    oldValue == null ? null : TextNode.valueOf(oldValue),
+                    newValue == null ? null : TextNode.valueOf(newValue));
         }
 
-        public Builder updated(String field, JsonElement oldValue, JsonElement newValue) {
+        public Builder updated(String field, JsonNode oldValue, JsonNode newValue) {
             if (field == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
             if (hasChange(oldValue, newValue)) {
-                JsonObject o = new JsonObject();
-                o.add("fieldName", new JsonPrimitive(field));
-                o.add("oldValue", oldValue);
-                o.add("newValue", newValue);
+                ObjectNode o = mapper.createObjectNode();
+                o.put("fieldName", field);
+                o.set("oldValue", oldValue);
+                o.set("newValue", newValue);
                 changes.jsonArray.add(o);
             }
             return this;
         }
-        private Builder jsonDiffToChanges(JsonElement beforeJson, JsonElement afterJson) {
-            JsonPatch patchArray = jsonPatchFactory.create(beforeJson, afterJson);
-            JsonElement current = beforeJson;
-            for (Iterator<AbsOperation> it = patchArray.iterator(); it.hasNext(); ) {
-                AbsOperation absOperation = it.next();
-                String operation = absOperation.getOperationName();
-                JsonPath path = absOperation.path;
-
+        private Builder jsonDiffToChanges(JsonNode beforeJson, JsonNode afterJson) {
+            ArrayNode patch = (ArrayNode) JsonDiff.asJson(beforeJson, afterJson);
+            JsonNode current = beforeJson;
+            for (JsonNode operation : patch) {
+                String op = operation.get("op").asText();
+                String path = operation.get("path").asText();
+                JsonNode value = operation.get("value");
                 String prettyPath = prettify(path);
-                switch (operation) {
+                switch (op) {
                     case "add": {
-                        added(prettyPath, toJsonString(((AddOperation) absOperation).data));
+                        added(prettyPath, value);
                         break;
                     }
                     case "remove": {
-                        JsonElement oldValue = absOperation.path.navigate(current);
-                        removed(prettyPath, toJsonString(oldValue));
+                        removed(prettyPath, current.at(path));
                         break;
                     }
                     case "replace": {
-                        JsonElement oldValue = absOperation.path.navigate(current);
-                        JsonElement newValue = ((ReplaceOperation) absOperation).data;
-                        updated(prettyPath, toJsonString(oldValue), toJsonString(newValue));
+                        updated(prettyPath, current.at(path), value);
                         break;
                     }
                     case "move": {
-                        JsonPath fromPath = ((MoveOperation) absOperation).from;
-                        JsonElement oldValue = fromPath.navigate(current);
-                        removed(prettify(fromPath), toJsonString(oldValue));
-
-                        JsonElement newValue = absOperation.path.navigate(afterJson);
-                        added(prettyPath, newValue);
+                        String fromPath = operation.get("from").asText();
+                        removed(prettify(fromPath), current.at(fromPath));
+                        added(prettyPath, afterJson.at(path));
                         break;
                     }
-                    default: throw new IllegalArgumentException(String.format("Unknown operation %s in %s . before: %s . after: %s"
-                            , operation, absOperation.path, beforeJson, afterJson));
+                    default: throw new IllegalArgumentException(
+                            String.format(
+                                "Unknown operation %s in %s . before: %s . after: %s",
+                                op,
+                                path,
+                                beforeJson,
+                                afterJson
+                            )
+                        );
                 }
-                current = absOperation.apply(current);
             }
             return this;
         }
 
-        private boolean hasChange(JsonElement oldValue, JsonElement newValue) {
+        private boolean hasChange(JsonNode oldValue, JsonNode newValue) {
             return null == oldValue ? null != newValue : !oldValue.equals(newValue);
         }
     }
 
-    private static String prettify(JsonPath path) {
-        return path.toString().substring(1).replaceAll("/", ".");
-    }
-
-    private static String toJsonString(JsonElement element) {
-        if (element.isJsonPrimitive()) {
-            return element.getAsString();
-        } else if (element.isJsonNull()) {
-            return element.toString();
-        }
-        else {
-            return gson.toJson(element);
-        }
+    private static String prettify(String path) {
+        return path.substring(1).replaceAll("/", ".");
     }
 }

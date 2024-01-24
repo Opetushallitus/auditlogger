@@ -1,6 +1,7 @@
 package fi.vm.sade.auditlog;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ietf.jgss.Oid;
 
 import java.net.InetAddress;
@@ -10,6 +11,7 @@ public class User {
     private final InetAddress ip;
     private final String session;
     private final String userAgent;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public User(InetAddress ip, String session, String userAgent) {
         this(null, ip, session, userAgent);
@@ -22,14 +24,14 @@ public class User {
         this.userAgent = userAgent;
     }
 
-    public JsonObject asJson() {
-        JsonObject o = new JsonObject();
+    public ObjectNode asJson() {
+        ObjectNode o = mapper.createObjectNode();
         if (oid != null) {
-            o.addProperty("oid", oid.toString());
+            o.put("oid", oid.toString());
         }
-        o.addProperty("ip", ip.getHostAddress());
-        o.addProperty("session", session);
-        o.addProperty("userAgent", userAgent);
+        o.put("ip", ip.getHostAddress());
+        o.put("session", session);
+        o.put("userAgent", userAgent);
         return o;
     }
 }

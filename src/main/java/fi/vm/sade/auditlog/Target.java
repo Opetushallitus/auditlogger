@@ -1,16 +1,15 @@
 package fi.vm.sade.auditlog;
 
-import com.google.gson.JsonObject;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public final class Target {
-    private JsonObject json = new JsonObject();
+    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectNode json = mapper.createObjectNode();
 
     private Target() { }
 
-    public JsonObject asJson() {
+    public ObjectNode asJson() {
         return this.json;
     }
 
@@ -31,7 +30,7 @@ public final class Target {
             if (name == null) {
                 throw new IllegalArgumentException("Field name is required");
             }
-            this.target.json.addProperty(name, value);
+            this.target.json.put(name, value);
             return this;
         }
     }
