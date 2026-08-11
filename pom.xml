@@ -4,7 +4,7 @@
     <groupId>fi.vm.sade</groupId>
     <artifactId>auditlogger</artifactId>
     <packaging>jar</packaging>
-    <version>9.2.6-SNAPSHOT</version>
+    <version>9.2.7-SNAPSHOT</version>
     <name>auditlogger</name>
 
     <properties>
@@ -89,15 +89,10 @@
 
     <distributionManagement>
         <repository>
-            <id>oph-sade-artifactory</id>
-            <name>oph-sade-artifactory-releases</name>
-            <url>https://artifactory.opintopolku.fi/artifactory/oph-sade-release-local</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/Opetushallitus/auditlogger</url>
         </repository>
-        <snapshotRepository>
-            <id>oph-sade-artifactory</id>
-            <name>oph-sade-artifactory-snapshots</name>
-            <url>https://artifactory.opintopolku.fi/artifactory/oph-sade-snapshot-local</url>
-        </snapshotRepository>
     </distributionManagement>
 
 </project>
